@@ -47,12 +47,12 @@ uname -r
 ```bash
 sudo add-apt-repository ppa:cappelikan/ppa
 ```
-7. Обновляем списки пакетов и установили mainline
+7. Обновляем списки пакетов и устанавливаем mainline
 ```bash
 sudo apt update
 sudo apt install mainline
 ```
-8. Проверяем доступные версии ядра и устанавливаем последню версию.
+8. Проверяем доступные версии ядра и устанавливаем последню версию ядра.
 ```bash
 mainline check
 sudo mainline install-latest
