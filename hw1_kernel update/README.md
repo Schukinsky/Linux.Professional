@@ -69,4 +69,5 @@ uname -r
 ```bash
 6.12.3-061203-generic
 ```
+![](screen01.PNG)
 
