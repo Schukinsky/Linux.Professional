@@ -26,7 +26,7 @@ ready to `vagrant up` your first virtual environment! Please read
 the comments in the Vagrantfile as well as documentation on
 `vagrantup.com` for more information on using Vagrant.
 ```
-5. Редактируем созданный Vagrantfile для разворачивания 2-х виртуальных машин:
+5. Формируем [Vagrantfile](ubuntu_jammy64/Vagrantfile) для разворачивания 2-х виртуальных машин:
 ```
 Vagrant.configure("2") do |config|
   # Настройки первой виртуальной машины
@@ -66,7 +66,7 @@ Vagrant.configure("2") do |config|
   end
 end
 ```
-6. Формируем файл provision.sh:
+6. Формируем файл [provision.sh](ubuntu_jammy64/provision.sh) обновления пакетов и создания тестовых файлов в общем каталоге:
 ```
 #!/bin/bash
 
