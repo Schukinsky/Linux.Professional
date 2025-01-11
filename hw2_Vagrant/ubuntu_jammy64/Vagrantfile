@@ -1,0 +1,40 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure("2") do |config|
+  # Настройки первой виртуальной машины
+  config.vm.define "ubuntu01" do |machine1|
+    machine1.vm.box = "ubuntu/jammy64" # Используем образ Ubuntu 22.04
+    machine1.vm.network "public_network", ip: "192.168.1.101" # Настройка сетевого интерфейса типа "мост"
+    machine1.vm.hostname = "ubuntu01" # Установка имени хоста
+    machine1.vm.provider "virtualbox" do |vb|
+      vb.cpus = 2 # Установка количества ядер
+      vb.memory = 1024 # Установка объема виртуальной памяти (в МБ)
+      vb.gui = false # Отключение графического интерфейса
+    end
+
+    # Прокидываем общий каталог
+    machine1.vm.synced_folder "./shared_folder", "/home/vagrant/shared_folder" 
+
+    # Запуск скрипта provision.sh
+    machine1.vm.provision "shell", path: "provision.sh"
+  end
+
+  # Настройки второй виртуальной машины
+  config.vm.define "ubuntu02" do |machine2|
+    machine2.vm.box = "ubuntu/jammy64" # Используем тот же образ
+    machine2.vm.network "public_network", ip: "192.168.1.102" # Настройка сетевого интерфейса типа "мост"
+    machine2.vm.hostname = "ubuntu02" # Установка имени хоста
+    machine2.vm.provider "virtualbox" do |vb|
+      vb.cpus = 2 # Установка количества ядер
+      vb.memory = 1024 # Установка объема виртуальной памяти (в МБ)
+      vb.gui = false # Отключение графического интерфейса
+    end
+
+    # Прокидываем общий каталог
+    machine2.vm.synced_folder "./shared_folder", "/home/vagrant/shared_folder" 
+
+    # Запуск скрипта provision.sh
+    machine2.vm.provision "shell", path: "provision.sh"
+  end
+end

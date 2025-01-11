@@ -1,0 +1,189 @@
+Bringing machine 'ubuntu01' up with 'virtualbox' provider...
+Bringing machine 'ubuntu02' up with 'virtualbox' provider...
+==> ubuntu01: Importing base box 'ubuntu/jammy64'...
+==> ubuntu01: Matching MAC address for NAT networking...
+==> ubuntu01: Checking if box 'ubuntu/jammy64' version '20241002.0.0' is up to date...
+==> ubuntu01: Setting the name of the VM: ubuntu_jammy64_ubuntu01_1736606625569_81641
+==> ubuntu01: Clearing any previously set network interfaces...
+==> ubuntu01: Preparing network interfaces based on configuration...
+    ubuntu01: Adapter 1: nat
+    ubuntu01: Adapter 2: bridged
+==> ubuntu01: Forwarding ports...
+    ubuntu01: 22 (guest) => 2222 (host) (adapter 1)
+==> ubuntu01: Running 'pre-boot' VM customizations...
+==> ubuntu01: Booting VM...
+==> ubuntu01: Waiting for machine to boot. This may take a few minutes...
+    ubuntu01: SSH address: 127.0.0.1:2222
+    ubuntu01: SSH username: vagrant
+    ubuntu01: SSH auth method: private key
+    ubuntu01: Warning: Connection reset. Retrying...
+    ubuntu01: Warning: Connection aborted. Retrying...
+    ubuntu01:
+    ubuntu01: Vagrant insecure key detected. Vagrant will automatically replace
+    ubuntu01: this with a newly generated keypair for better security.
+    ubuntu01:
+    ubuntu01: Inserting generated public key within guest...
+    ubuntu01: Removing insecure key from the guest if it's present...
+    ubuntu01: Key inserted! Disconnecting and reconnecting using new SSH key...
+==> ubuntu01: Machine booted and ready!
+==> ubuntu01: Checking for guest additions in VM...
+    ubuntu01: The guest additions on this VM do not match the installed version of
+    ubuntu01: VirtualBox! In most cases this is fine, but in rare cases it can
+    ubuntu01: prevent things such as shared folders from working properly. If you see
+    ubuntu01: shared folder errors, please make sure the guest additions within the
+    ubuntu01: virtual machine match the version of VirtualBox you have installed on
+    ubuntu01: your host and reload your VM.
+    ubuntu01:
+    ubuntu01: Guest Additions Version: 6.0.0 r127566
+    ubuntu01: VirtualBox Version: 7.0
+==> ubuntu01: Setting hostname...
+==> ubuntu01: Configuring and enabling network interfaces...
+==> ubuntu01: Mounting shared folders...
+    ubuntu01: C:/Users/Admin/Documents/GitHub/Linux.Professional/hw2_Vagrant/ubuntu_jammy64 => /vagrant
+    ubuntu01: C:/Users/Admin/Documents/GitHub/Linux.Professional/hw2_Vagrant/ubuntu_jammy64/shared_folder => /home/vagrant/shared_folder
+==> ubuntu01: Running provisioner: shell...
+    ubuntu01: Running: C:/Users/Admin/AppData/Local/Temp/vagrant-shell20250111-4736-pe9ama.sh
+    ubuntu01: Hit:1 http://archive.ubuntu.com/ubuntu jammy InRelease
+    ubuntu01: Get:2 http://archive.ubuntu.com/ubuntu jammy-updates InRelease [128 kB]
+    ubuntu01: Get:3 http://security.ubuntu.com/ubuntu jammy-security InRelease [129 kB]
+    ubuntu01: Get:4 http://archive.ubuntu.com/ubuntu jammy-backports InRelease [127 kB]
+    ubuntu01: Get:5 http://archive.ubuntu.com/ubuntu jammy/universe amd64 Packages [14.1 MB]
+    ubuntu01: Get:6 http://security.ubuntu.com/ubuntu jammy-security/main amd64 Packages [2040 kB]
+    ubuntu01: Get:7 http://security.ubuntu.com/ubuntu jammy-security/main Translation-en [321 kB]
+    ubuntu01: Get:8 http://security.ubuntu.com/ubuntu jammy-security/restricted amd64 Packages [2772 kB]
+    ubuntu01: Get:9 http://archive.ubuntu.com/ubuntu jammy/universe Translation-en [5652 kB]
+    ubuntu01: Get:10 http://archive.ubuntu.com/ubuntu jammy/universe amd64 c-n-f Metadata [286 kB]
+    ubuntu01: Get:11 http://archive.ubuntu.com/ubuntu jammy/multiverse amd64 Packages [217 kB]
+    ubuntu01: Get:12 http://archive.ubuntu.com/ubuntu jammy/multiverse Translation-en [112 kB]
+    ubuntu01: Get:13 http://archive.ubuntu.com/ubuntu jammy/multiverse amd64 c-n-f Metadata [8372 B]
+    ubuntu01: Get:14 http://archive.ubuntu.com/ubuntu jammy-updates/main amd64 Packages [2276 kB]
+    ubuntu01: Get:15 http://archive.ubuntu.com/ubuntu jammy-updates/main Translation-en [382 kB]
+    ubuntu01: Get:16 http://archive.ubuntu.com/ubuntu jammy-updates/restricted amd64 Packages [2877 kB]
+    ubuntu01: Get:17 http://security.ubuntu.com/ubuntu jammy-security/restricted Translation-en [484 kB]
+    ubuntu01: Get:18 http://archive.ubuntu.com/ubuntu jammy-updates/restricted Translation-en [501 kB]
+    ubuntu01: Get:19 http://archive.ubuntu.com/ubuntu jammy-updates/universe amd64 Packages [1181 kB]
+    ubuntu01: Get:20 http://security.ubuntu.com/ubuntu jammy-security/universe amd64 Packages [959 kB]
+    ubuntu01: Get:21 http://archive.ubuntu.com/ubuntu jammy-updates/universe Translation-en [289 kB]
+    ubuntu01: Get:22 http://archive.ubuntu.com/ubuntu jammy-updates/universe amd64 c-n-f Metadata [26.4 kB]
+    ubuntu01: Get:23 http://archive.ubuntu.com/ubuntu jammy-updates/multiverse amd64 Packages [44.5 kB]
+    ubuntu01: Get:24 http://archive.ubuntu.com/ubuntu jammy-updates/multiverse Translation-en [11.5 kB]
+    ubuntu01: Get:25 http://archive.ubuntu.com/ubuntu jammy-updates/multiverse amd64 c-n-f Metadata [440 B]
+    ubuntu01: Get:26 http://archive.ubuntu.com/ubuntu jammy-backports/main amd64 Packages [67.7 kB]
+    ubuntu01: Get:27 http://archive.ubuntu.com/ubuntu jammy-backports/main Translation-en [11.1 kB]
+    ubuntu01: Get:28 http://archive.ubuntu.com/ubuntu jammy-backports/main amd64 c-n-f Metadata [388 B]
+    ubuntu01: Get:29 http://archive.ubuntu.com/ubuntu jammy-backports/restricted amd64 c-n-f Metadata [116 B]
+    ubuntu01: Get:30 http://archive.ubuntu.com/ubuntu jammy-backports/universe amd64 Packages [28.9 kB]
+    ubuntu01: Get:31 http://archive.ubuntu.com/ubuntu jammy-backports/universe Translation-en [16.5 kB]
+    ubuntu01: Get:32 http://archive.ubuntu.com/ubuntu jammy-backports/universe amd64 c-n-f Metadata [672 B]
+    ubuntu01: Get:33 http://archive.ubuntu.com/ubuntu jammy-backports/multiverse amd64 c-n-f Metadata [116 B]
+    ubuntu01: Get:34 http://security.ubuntu.com/ubuntu jammy-security/universe Translation-en [204 kB]
+    ubuntu01: Get:35 http://security.ubuntu.com/ubuntu jammy-security/universe amd64 c-n-f Metadata [19.5 kB]
+    ubuntu01: Get:36 http://security.ubuntu.com/ubuntu jammy-security/multiverse amd64 Packages [37.6 kB]
+    ubuntu01: Get:37 http://security.ubuntu.com/ubuntu jammy-security/multiverse Translation-en [8260 B]
+    ubuntu01: Get:38 http://security.ubuntu.com/ubuntu jammy-security/multiverse amd64 c-n-f Metadata [224 B]
+    ubuntu01: Fetched 35.3 MB in 8s (4220 kB/s)
+    ubuntu01: Reading package lists...
+    ubuntu01: Reading package lists...
+    ubuntu01: Building dependency tree...
+    ubuntu01: Reading state information...
+    ubuntu01: Calculating upgrade...
+    ubuntu01: 0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+    ubuntu01: Reading package lists...
+    ubuntu01: Building dependency tree...
+    ubuntu01: Reading state information...
+    ubuntu01: 0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+    ubuntu01: Создан файл: test_ubuntu02.txt
+==> ubuntu02: Importing base box 'ubuntu/jammy64'...
+==> ubuntu02: Matching MAC address for NAT networking...
+==> ubuntu02: Checking if box 'ubuntu/jammy64' version '20241002.0.0' is up to date...
+==> ubuntu02: Setting the name of the VM: ubuntu_jammy64_ubuntu02_1736606703626_38335
+==> ubuntu02: Fixed port collision for 22 => 2222. Now on port 2200.
+==> ubuntu02: Clearing any previously set network interfaces...
+==> ubuntu02: Preparing network interfaces based on configuration...
+    ubuntu02: Adapter 1: nat
+    ubuntu02: Adapter 2: bridged
+==> ubuntu02: Forwarding ports...
+    ubuntu02: 22 (guest) => 2200 (host) (adapter 1)
+==> ubuntu02: Running 'pre-boot' VM customizations...
+==> ubuntu02: Booting VM...
+==> ubuntu02: Waiting for machine to boot. This may take a few minutes...
+    ubuntu02: SSH address: 127.0.0.1:2200
+    ubuntu02: SSH username: vagrant
+    ubuntu02: SSH auth method: private key
+    ubuntu02: Warning: Connection aborted. Retrying...
+    ubuntu02: Warning: Connection reset. Retrying...
+    ubuntu02:
+    ubuntu02: Vagrant insecure key detected. Vagrant will automatically replace
+    ubuntu02: this with a newly generated keypair for better security.
+    ubuntu02:
+    ubuntu02: Inserting generated public key within guest...
+    ubuntu02: Removing insecure key from the guest if it's present...
+    ubuntu02: Key inserted! Disconnecting and reconnecting using new SSH key...
+==> ubuntu02: Machine booted and ready!
+==> ubuntu02: Checking for guest additions in VM...
+    ubuntu02: The guest additions on this VM do not match the installed version of
+    ubuntu02: VirtualBox! In most cases this is fine, but in rare cases it can
+    ubuntu02: prevent things such as shared folders from working properly. If you see
+    ubuntu02: shared folder errors, please make sure the guest additions within the
+    ubuntu02: virtual machine match the version of VirtualBox you have installed on
+    ubuntu02: your host and reload your VM.
+    ubuntu02:
+    ubuntu02: Guest Additions Version: 6.0.0 r127566
+    ubuntu02: VirtualBox Version: 7.0
+==> ubuntu02: Setting hostname...
+==> ubuntu02: Configuring and enabling network interfaces...
+==> ubuntu02: Mounting shared folders...
+    ubuntu02: C:/Users/Admin/Documents/GitHub/Linux.Professional/hw2_Vagrant/ubuntu_jammy64 => /vagrant
+    ubuntu02: C:/Users/Admin/Documents/GitHub/Linux.Professional/hw2_Vagrant/ubuntu_jammy64/shared_folder => /home/vagrant/shared_folder
+==> ubuntu02: Running provisioner: shell...
+    ubuntu02: Running: C:/Users/Admin/AppData/Local/Temp/vagrant-shell20250111-4736-f4i9mq.sh
+    ubuntu02: Hit:1 http://archive.ubuntu.com/ubuntu jammy InRelease
+    ubuntu02: Get:2 http://security.ubuntu.com/ubuntu jammy-security InRelease [129 kB]
+    ubuntu02: Get:3 http://archive.ubuntu.com/ubuntu jammy-updates InRelease [128 kB]
+    ubuntu02: Get:4 http://archive.ubuntu.com/ubuntu jammy-backports InRelease [127 kB]
+    ubuntu02: Get:5 http://security.ubuntu.com/ubuntu jammy-security/main amd64 Packages [2040 kB]
+    ubuntu02: Get:6 http://archive.ubuntu.com/ubuntu jammy/universe amd64 Packages [14.1 MB]
+    ubuntu02: Get:7 http://security.ubuntu.com/ubuntu jammy-security/main Translation-en [321 kB]
+    ubuntu02: Get:8 http://security.ubuntu.com/ubuntu jammy-security/restricted amd64 Packages [2772 kB]
+    ubuntu02: Get:9 http://security.ubuntu.com/ubuntu jammy-security/restricted Translation-en [484 kB]
+    ubuntu02: Get:10 http://security.ubuntu.com/ubuntu jammy-security/universe amd64 Packages [959 kB]
+    ubuntu02: Get:11 http://security.ubuntu.com/ubuntu jammy-security/universe Translation-en [204 kB]
+    ubuntu02: Get:12 http://security.ubuntu.com/ubuntu jammy-security/universe amd64 c-n-f Metadata [19.5 kB]
+    ubuntu02: Get:13 http://security.ubuntu.com/ubuntu jammy-security/multiverse amd64 Packages [37.6 kB]
+    ubuntu02: Get:14 http://security.ubuntu.com/ubuntu jammy-security/multiverse Translation-en [8260 B]
+    ubuntu02: Get:15 http://security.ubuntu.com/ubuntu jammy-security/multiverse amd64 c-n-f Metadata [224 B]
+    ubuntu02: Get:16 http://archive.ubuntu.com/ubuntu jammy/universe Translation-en [5652 kB]
+    ubuntu02: Get:17 http://archive.ubuntu.com/ubuntu jammy/universe amd64 c-n-f Metadata [286 kB]
+    ubuntu02: Get:18 http://archive.ubuntu.com/ubuntu jammy/multiverse amd64 Packages [217 kB]
+    ubuntu02: Get:19 http://archive.ubuntu.com/ubuntu jammy/multiverse Translation-en [112 kB]
+    ubuntu02: Get:20 http://archive.ubuntu.com/ubuntu jammy/multiverse amd64 c-n-f Metadata [8372 B]
+    ubuntu02: Get:21 http://archive.ubuntu.com/ubuntu jammy-updates/main amd64 Packages [2276 kB]
+    ubuntu02: Get:22 http://archive.ubuntu.com/ubuntu jammy-updates/main Translation-en [382 kB]
+    ubuntu02: Get:23 http://archive.ubuntu.com/ubuntu jammy-updates/restricted amd64 Packages [2877 kB]
+    ubuntu02: Get:24 http://archive.ubuntu.com/ubuntu jammy-updates/restricted Translation-en [501 kB]
+    ubuntu02: Get:25 http://archive.ubuntu.com/ubuntu jammy-updates/universe amd64 Packages [1181 kB]
+    ubuntu02: Get:26 http://archive.ubuntu.com/ubuntu jammy-updates/universe Translation-en [289 kB]
+    ubuntu02: Get:27 http://archive.ubuntu.com/ubuntu jammy-updates/universe amd64 c-n-f Metadata [26.4 kB]
+    ubuntu02: Get:28 http://archive.ubuntu.com/ubuntu jammy-updates/multiverse amd64 Packages [44.5 kB]
+    ubuntu02: Get:29 http://archive.ubuntu.com/ubuntu jammy-updates/multiverse Translation-en [11.5 kB]
+    ubuntu02: Get:30 http://archive.ubuntu.com/ubuntu jammy-updates/multiverse amd64 c-n-f Metadata [440 B]
+    ubuntu02: Get:31 http://archive.ubuntu.com/ubuntu jammy-backports/main amd64 Packages [67.7 kB]
+    ubuntu02: Get:32 http://archive.ubuntu.com/ubuntu jammy-backports/main Translation-en [11.1 kB]
+    ubuntu02: Get:33 http://archive.ubuntu.com/ubuntu jammy-backports/main amd64 c-n-f Metadata [388 B]
+    ubuntu02: Get:34 http://archive.ubuntu.com/ubuntu jammy-backports/restricted amd64 c-n-f Metadata [116 B]
+    ubuntu02: Get:35 http://archive.ubuntu.com/ubuntu jammy-backports/universe amd64 Packages [28.9 kB]
+    ubuntu02: Get:36 http://archive.ubuntu.com/ubuntu jammy-backports/universe Translation-en [16.5 kB]
+    ubuntu02: Get:37 http://archive.ubuntu.com/ubuntu jammy-backports/universe amd64 c-n-f Metadata [672 B]
+    ubuntu02: Get:38 http://archive.ubuntu.com/ubuntu jammy-backports/multiverse amd64 c-n-f Metadata [116 B]
+    ubuntu02: Fetched 35.3 MB in 9s (3783 kB/s)
+    ubuntu02: Reading package lists...
+    ubuntu02: Reading package lists...
+    ubuntu02: Building dependency tree...
+    ubuntu02: Reading state information...
+    ubuntu02: Calculating upgrade...
+    ubuntu02: 0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+    ubuntu02: Reading package lists...
+    ubuntu02: Building dependency tree...
+    ubuntu02: Reading state information...
+    ubuntu02: 0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+    ubuntu02: Создан файл: test_ubuntu03.txt
