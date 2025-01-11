@@ -67,7 +67,7 @@ Vagrant.configure("2") do |config|
 end
 ```
 6. Формируем файл provision.sh:
-```bash
+```
 #!/bin/bash
 
 # Обновление списка пакетов
