@@ -115,3 +115,15 @@ ping 192.168.1.102
 ![](screen01.PNG)
 10. Проводим обновление ядра системы по [инструкции](https://github.com/Schukinsky/Linux.Professional/tree/main/hw1_kernel%20update)
 
+### Основные команды Vagrant
+```
+vagrant up - запустить или создать виртуальную машину 
+vagrant reload - перезагрузка виртуальной машины 
+vagrant halt  - останавливает виртуальную машину 
+vagrant destroy  - удаляет виртуальную машину 
+vagrant suspend  - "замораживает" виртуальную машину 
+vagrant global-status  - выводит список всех ранее созданных виртуальных машин в хост-системе 
+vagrant status - посмотреть статус виртуальной машины 
+vagrant ssh  - подключается к виртуальной машине по SSH 
+vagrant - список всех доступных команд
+```
