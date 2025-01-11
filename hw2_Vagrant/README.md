@@ -1,33 +1,33 @@
-## Администрирование, установка, настройка, отладка серверов Linux с использованием инструмента Vagrant
-В данной работе будут исользоваться хостовая машина на Windows 10, ПО VirtualBox версия 7.0.14, ПО Vagrant версия 2.4.3, Vagrant Box ubuntu/jammy64
-Ход выполнения работы:
+## Использование инструмента Vagrant
+В данной работе будут использовались хостовая машина на Windows 10, ПО VirtualBox версия 7.0.14, ПО Vagrant версия 2.4.3, Vagrant Box ubuntu/jammy64
+### Ход выполнения работы:
 1. Устанавливаем Vagrant
 2. Добавляем переменную vagrant в системные переменные, проверяем версию Vagrant:
-```bash
+```
 C:\Windows\system32>set PATH=%PATH%;C:\Program Files\Vagrant\bin
 ```
-```bash
+```
 C:\Windows\system32>vagrant -v
 Vagrant 2.4.3
 ```
 3. Создаем каталог для проетка и переходим в него:
-```bash
+```
 mkdir C:\Users\Admin\Documents\GitHub\Linux.Professional\hw2_Vagrant\ubuntu_jammy64
 cd C:\Users\Admin\Documents\GitHub\Linux.Professional\hw2_Vagrant\ubuntu_jammy64
 ```
 4. Cозданием рабочее окружение, в котором будет выполняться код приложения:
-```bash
+```
 vagrant init -m ubuntu/jammy64
 ```
 Получаем сообщение об успешном создании Vagrantfile:
-```bash
+```
 A `Vagrantfile` has been placed in this directory. You are now
 ready to `vagrant up` your first virtual environment! Please read
 the comments in the Vagrantfile as well as documentation on
 `vagrantup.com` for more information on using Vagrant.
 ```
 5. Редактируем созданный Vagrantfile для разворачивания 2-х виртуальных машин:
-```bash
+```
 Vagrant.configure("2") do |config|
   # Настройки первой виртуальной машины
   config.vm.define "ubuntu01" do |machine1|
@@ -98,12 +98,13 @@ touch "$SHARED_FOLDER/$NEW_FILE_NAME"
 echo "Создан файл: $NEW_FILE_NAME"
 ```
 7. Создаем виртуальные машины:
-```bash
+```
 vagrant up
 ```
 [Лог выполнения](vagrant_up.log)
+
 8. Подключаемся по ssh к созданной виртуальной машине:
-```bash
+```
 vagrant ssh ubuntu01
 ```
 9. Проверяем работу общего каталога и сети:
@@ -112,5 +113,5 @@ ls /home/vagrant/shared_folder
 ping 192.168.1.102
 ```
 ![](screen01.PNG)
-10. Проводим обновление ядра системы по [инструкции](hw1_kernel%20update/README.md)
+10. Проводим обновление ядра системы по [инструкции](https://github.com/Schukinsky/Linux.Professional/tree/main/hw1_kernel%20update)
 
