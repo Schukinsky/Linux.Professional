@@ -1,0 +1,35 @@
+---
+- hosts: all
+  become: yes
+  vars:
+    nginx_port: 8080
+
+  tasks:
+    - name: Установка Nginx
+      package:
+        name: nginx
+        state: present
+
+    - name: Копирование конфигурационного файла Nginx
+      template:
+        src: nginx.conf.j2
+        dest: /etc/nginx/sites-available/default
+      notify: Перезапустить Nginx
+
+    - name: Копирование конфигурационного html стрницы
+      template:
+        src: index.j2
+        dest: /var/www/html/index.html
+      notify: Перезапустить Nginx
+
+    - name: Включение Nginx в systemd
+      systemd:
+        name: nginx
+        enabled: yes
+        state: started
+
+  handlers:
+    - name: Перезапустить Nginx
+      systemd:
+        name: nginx
+        state: restarted

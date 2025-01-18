@@ -1,0 +1,10 @@
+
+server {
+    listen {{ nginx_port }};
+    server_name ubuntu01;
+
+    location / {
+        root /var/www/html;
+        index index.html index.htm;
+    }
+}
