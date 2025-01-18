@@ -5,31 +5,31 @@
     nginx_port: 8080
 
   tasks:
-    - name: Установка Nginx
+    - name: Install Nginx
       package:
         name: nginx
         state: present
 
-    - name: Копирование конфигурационного файла Nginx
+    - name: Copy nginx.conf
       template:
         src: nginx.conf.j2
         dest: /etc/nginx/sites-available/default
-      notify: Перезапустить Nginx
+      notify: Reload Nginx
 
-    - name: Копирование конфигурационного html стрницы
+    - name: Configure HTML page
       template:
         src: index.j2
         dest: /var/www/html/index.html
-      notify: Перезапустить Nginx
+      notify: Reload Nginx
 
-    - name: Включение Nginx в systemd
+    - name: Start Nginx systemd
       systemd:
         name: nginx
         enabled: yes
         state: started
 
   handlers:
-    - name: Перезапустить Nginx
+    - name: Reload Nginx
       systemd:
         name: nginx
         state: restarted
