@@ -79,7 +79,7 @@ sudo apt-get autoremove -y
 echo "Установка Ansible..."
 sudo apt-get install -y ansible
 ```
-4. Формируем шаблоны index.html и nginx.conf с использованием переменных :
+4. Формируем шаблоны index.html и nginx.conf с использованием переменных:  
  [index.j2](ubuntu_jammy64/ansible/templates/index.j2) 
 ```
 <!DOCTYPE html>
