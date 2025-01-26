@@ -1,9 +1,9 @@
 ## Raid. Работа с mdadm
-Задача:
-• добавить в Vagrantfile еще дисков
-• собрать R0/R5/R10 на выбор
-• прописать собранный рейд в конф, чтобы рейд собирался при загрузке
-• сломать/починить raid 
+Задача:  
+• добавить в Vagrantfile еще дисков  
+• собрать R0/R5/R10 на выбор  
+• прописать собранный рейд в конф, чтобы рейд собирался при загрузке  
+• сломать/починить raid  
 • создать GPT раздел и 5 партиций и смонтировать их на диск.
 
 ### Ход выполнения работы:
@@ -37,9 +37,10 @@ Vagrant.configure("2") do |config|
 end
 ```
 2. Собираем RAID 10 из 4 дисков
+```
 sudo mdadm --create --verbose /dev/md0 -l 10 -n 4 /dev/sd{c,d,e,f}
-
-3. Проверяем что RAID собрался
+```
+2.1 Проверяем что RAID собрался
 ```
 cat /proc/mdstat
 ```
@@ -48,7 +49,7 @@ Personalities : [linear] [multipath] [raid0] [raid1] [raid6] [raid5] [raid4] [ra
 md0 : active raid10 sdf[3] sde[2] sdd[1] sdc[0]
       1019904 blocks super 1.2 512K chunks 2 near-copies [4/4] [UUUU]
 ```
-4. Смотрим более детальную информацию о собранном RAID md0
+2.2 Смотрим более детальную информацию о собранном RAID md0
 ```
 sudo mdadm -D /dev/md0
 ```
@@ -85,11 +86,11 @@ Consistency Policy : resync
        2       8       64        2      active sync set-A   /dev/sde
        3       8       80        3      active sync set-B   /dev/sdf
 ```
-5. Добавляем дополнительный диск sdg в RAID
+2.3 Добавляем дополнительный диск sdg в RAID
 ```
 sudo mdadm /dev/md0 --add /dev/sdg
 ```
-6. Смотрим детальную информацию о собранном RAID md0
+2.4 Смотрим детальную информацию о собранном RAID md0
 ```
 /dev/md0:
            Version : 1.2
@@ -125,8 +126,9 @@ Consistency Policy : resync
 
        4       8       96        -      spare   /dev/sdg
 ```
-7. Для того, чтобы быть уверенным, что ОС запомнила, какой RAID массив требуется создать и какие компоненты в него входят, создадим файл mdadm.conf:
-7.1 Сначала убедимся, что информация верна:
+3. Cоздание файла mdadm.conf:
+   
+3.1 Убедимся, что информация верна:
 ```
 sudo mdadm --detail --scan --verbose
 ```
@@ -134,7 +136,7 @@ sudo mdadm --detail --scan --verbose
 ARRAY /dev/md0 level=raid10 num-devices=4 metadata=1.2 spares=1 name=storage01:0 UUID=8c4ffb83:f30865a6:7f1651f3:58cb5378
    devices=/dev/sdc,/dev/sdd,/dev/sde,/dev/sdf,/dev/sdg
 ```
-7.1 Создаем mdadm.conf
+3.2 Создаем mdadm.conf
 ```
 sudo su
 echo "DEVICE partitions" > /etc/mdadm/mdadm.conf
@@ -145,12 +147,13 @@ mdadm --detail --scan --verbose | awk '/ARRAY/ {print}' >> /etc/mdadm/mdadm.conf
 DEVICE partitions
 ARRAY /dev/md0 level=raid10 num-devices=4 metadata=1.2 spares=1 name=storage01:0 UUID=8c4ffb83:f30865a6:7f1651f3:58cb5378
 ```
-8. Сломать/починить RAID
-8.1 Зафэйлим sdа
+4. Сломать/починить RAID
+   
+4.1 Зафэйлим sdа
 ```
 sudo mdadm /dev/md0 --fail /dev/sdf
 ```
-8.2 Проверим состояние RAID
+4.2 Проверим состояние RAID
 ```
 sudo mdadm -D /dev/md0
 ```
@@ -190,11 +193,11 @@ Consistency Policy : resync
 
        3       8       80        -      faulty   /dev/sdf
 ```
-8.3 Удалим сломанный диск sdf
+4.3 Удалим сломанный диск sdf
 ```
 sudo mdadm /dev/md0 --remove /dev/sdf
 ```
-8.4 Зафэйлим sdg
+4.4 Зафэйлим sdg
 ```
 sudo mdadm /dev/md0 --fail /dev/sdg
 ```
@@ -233,11 +236,11 @@ Consistency Policy : resync
 
        4       8       96        -      faulty   /dev/sdg
 ```
-8.5 Удалим сломанный диск sdg
+4.5 Удалим сломанный диск sdg
 ```
 sudo mdadm /dev/md0 --remove /dev/sdg
 ```
-8.6 Добавим диски sd{f,g} в RAID
+4.6 Добавим диски sd{f,g} в RAID
 ```
 sudo mdadm /dev/md0 --add /dev/sd{f,g}
 ```
@@ -278,19 +281,24 @@ Consistency Policy : resync
 ```
 RAID восстановлен. Осуществлена проверка перехода spare диска в состояние active взамен сломанного и прехода Raid из состояния clean, degraded в clean после добавления новых дисков.
 
-Создать GPT раздел, пять партиций и смонтировать их на диск
-Создаем раздел GPT на RAID
+5. Создаем GPT раздел, пять партиций и монтируем их:
+   
+5.1 Создаем раздел GPT на RAID
 ```
 sudo parted -s /dev/md0 mklabel gpt
 ```
-Создаем партиции
+5.2 Создаем партиции
+```
 sudo parted /dev/md0 mkpart primary ext4 0% 20%
 sudo parted /dev/md0 mkpart primary ext4 20% 40%
 sudo parted /dev/md0 mkpart primary ext4 40% 60%
 sudo parted /dev/md0 mkpart primary ext4 60% 80%
 sudo parted /dev/md0 mkpart primary ext4 80% 100%
-Проверяем:
+```
+5.3 Проверяем:
+```
 sudo fdisk -l
+```
 ```
 Disk /dev/md0: 996 MiB, 1044381696 bytes, 2039808 sectors
 Units: sectors of 1 * 512 = 512 bytes
@@ -306,8 +314,10 @@ Device       Start     End Sectors  Size Type
 /dev/md0p4 1224704 1632255  407552  199M Linux filesystem
 /dev/md0p5 1632256 2037759  405504  198M Linux filesystem
 ```
-Далее можно создать на этих партициях ФС
+5.4 Создаем на этих партициях ФС
+```
 for i in $(seq 1 5); do sudo mkfs.ext4 /dev/md0p$i; done
+```
 ```
 mke2fs 1.46.5 (30-Dec-2021)
 Creating filesystem with 50688 4k blocks and 50688 inodes
@@ -364,12 +374,51 @@ Writing inode tables: done
 Creating journal (4096 blocks): done
 Writing superblocks and filesystem accounting information: done
 ```
-И смонтировать их по каталогам
+5.5 Монтируем их по каталогам
+```
 sudo mkdir -p /raid/part{1,2,3,4,5}
 sudo for i in $(seq 1 5); do sudo mount /dev/md0p$i /raid/part$i; done
-
-
-2. mdadm — полезные команды
+```
+6. На основе пунктов 2-5 формируем файл [create_raid.sh](create_raid.sh) для исполнения в Vagrantfile
+```
+# Создание RAID 10
+sudo mdadm --create --verbose /dev/md0 -l 10 -n 4 /dev/sd{c,d,e,f}
+sudo mdadm /dev/md0 --add /dev/sdg
+# Создание конфигурационного файла для mdadm
+mdadm --detail --scan >> /etc/mdadm/mdadm.conf
+# Обновление initramfs
+update-initramfs -u
+# Создание GPT раздела и 5 партиций
+sudo parted -s /dev/md0 mklabel gpt
+# Создание партиций по 20% от общего объема
+parted /dev/md0 --script mkpart primary ext4 0% 20%
+parted /dev/md0 --script mkpart primary ext4 20% 40%
+parted /dev/md0 --script mkpart primary ext4 40% 60%
+parted /dev/md0 --script mkpart primary ext4 60% 80%
+parted /dev/md0 --script mkpart primary ext4 80% 100%
+# Форматирование партиций
+for i in {1..5}; do
+    mkfs.ext4 /dev/md0p$i
+done
+# Создание точек монтирования
+mkdir -p /mnt/raid/part1
+mkdir -p /mnt/raid/part2
+mkdir -p /mnt/raid/part3
+mkdir -p /mnt/raid/part4
+mkdir -p /mnt/raid/part5
+# Монтирование партиций
+mkdir -p /mnt/raid
+for i in {1..5}; do
+    mount /dev/md0p$i /mnt/raid/part$i
+done
+# Добавление записей в fstab для автоматического монтирования
+echo "/dev/md0p1 /mnt/raid/part1 ext4 defaults 0 0" >> /etc/fstab
+echo "/dev/md0p2 /mnt/raid/part2 ext4 defaults 0 0" >> /etc/fstab
+echo "/dev/md0p3 /mnt/raid/part3 ext4 defaults 0 0" >> /etc/fstab
+echo "/dev/md0p4 /mnt/raid/part4 ext4 defaults 0 0" >> /etc/fstab
+echo "/dev/md0p5 /mnt/raid/part5 ext4 defaults 0 0" >> /etc/fstab
+```
+7. mdadm — полезные команды
 ```
 cat /proc/mdstat - cостояние массива
 mdadm --detail /dev/md0 - подробный статус выбранного массива
