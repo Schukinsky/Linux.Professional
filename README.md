@@ -4,3 +4,4 @@ Otus learning - Administrator Linux. Professional
 ### [2. Vagrant](hw2_Vagrant/README.md)
 ### [3. Ansible](hw3_Ansible/README.md)
 ### [4. RAID](hw4_Raid/README.md)
+### [5. LVM](hw5_LVM/README.md)
