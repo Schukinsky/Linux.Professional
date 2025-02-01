@@ -5,3 +5,4 @@ Otus learning - Administrator Linux. Professional
 ### [3. Ansible](hw3_Ansible/README.md)
 ### [4. RAID](hw4_Raid/README.md)
 ### [5. LVM](hw5_LVM/README.md)
+### [6. LVM](hw6_ZFS/README.md)
