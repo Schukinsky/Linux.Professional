@@ -4,14 +4,15 @@
 1. Уменьшить том под / до 8G
 2. Выделить том под /home
 3. Выделить том под /var - сделать в mirror
-4. /home - сделать том для снапшотов
-        сгенерить файлы в /home/;
-        снять снапшот;
-        удалить часть файлов;
+4. /home - сделать том для снапшотов:  
+        сгенерить файлы в /home/;  
+        снять снапшот;  
+        удалить часть файлов;  
         восстановится со снапшота.
 
 ### Ход выполнения работы:
-1. Уменьшить том под / до 8G  
+1. Уменьшить том под / до 8G
+
 1.1 Создадим physical volume /dev/sdb:
 ```
 pvcreate /dev/sdb
@@ -89,8 +90,10 @@ update-initramfs -u
 ```
 reboot
 ```
-![](screen01.PNG)
+![](screen01.PNG)  
+
 2. Выделить том под /home
+ 
 2.1 Создадим logical volume, файловую систему на нем и примонтируем его:
 ```
 lvcreate -n LogVol_Home -L 2G /dev/ubuntu-vg
@@ -115,8 +118,10 @@ mount /dev/ubuntu-vg/LogVol_Home /home/
 echo "`blkid | grep Home | awk '{print $2}'` \
  /home xfs defaults 0 0" >> /etc/fstab
 ```
-![](screen02.PNG)
-3. Выделить том под /var - сделать в mirror
+![](screen02.PNG)  
+
+3. Выделить том под /var - сделать в mirror  
+
 3.1 Создадим два physical volume:
 ```
 pvcreate /dev/sdc /dev/sdd
@@ -149,7 +154,9 @@ mount /dev/vg_var/lv_var /var
 echo "`blkid | grep var: | awk '{print $2}'` \
  /var ext4 defaults 0 0" >> /etc/fstab
 ```
+
 4. /home - сделать том для снапшотов
+   
 4.1 Генерируем файлы в /home:
 ```
 touch /home/test_file{1..20}
