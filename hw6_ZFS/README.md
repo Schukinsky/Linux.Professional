@@ -25,10 +25,11 @@ sudo apt upgrade
 sudo apt install zfsutils-linux
 zfs --version
 ```
-1. 
-sudo -i
+1. Определить алгоритм с наилучшим сжатием:  
+
 1.1 Создаём пул из двух дисков в режиме RAID 1:
 ```
+sudo -i
 zpool create otus1 mirror /dev/sdc /dev/sdd
 ```
 1.2 Создадим ещё 3 пула:
@@ -37,15 +38,14 @@ zpool create otus2 mirror /dev/sde /dev/sdf
 zpool create otus3 mirror /dev/sdg /dev/sdh
 zpool create otus4 mirror /dev/sdi /dev/sdj
 ```
-1.3 Смотрим информацию о пулах: 
-```
-zpool list  # показывает информацию о размере пула, количеству занятого и свободного места, дедупликации и т.д.
-zpool status # показывает информацию о каждом диске, состоянии сканирования и об ошибках чтения, записи и совпадения хэш-сумм.
+1.3 Смотрим информацию о пулах:  
+```bash
+zpool list  # показывает информацию о размере пула, количеству занятого и свободного места, дедупликации и т.д.  
+zpool status # показывает информацию о каждом диске, состоянии сканирования и об ошибках чтения, записи и совпадения хэш-сумм.  
 ```
 ![](screen01.PNG)  
-
 1.4 Добавим разные алгоритмы сжатия в каждую файловую систему:
-```
+```bash
 zfs set compression=lzjb otus1 # Алгоритм lzjb
 zfs set compression=lz4 otus2 # Алгоритм lz4
 zfs set compression=gzip-9 otus3 # Алгоритм gzip
@@ -74,6 +74,7 @@ zfs get all | grep compressratio | grep -v ref
 Таким образом, у нас получается, что алгоритм gzip-9 самый эффективный по сжатию.  
 
 2. Определение настроек пула
+   
 2.1 Скачиваем архив в домашний каталог: 
 ```
 wget -O archive.tar.gz --no-check-certificate 'https://drive.usercontent.google.com/download?id=1MvrcEp-WgAQe57aDEzxSRalPAwbNN1Bb&export=download'
@@ -88,9 +89,9 @@ zpool import -d zpoolexport/
 ```
 ![](screen05.PNG)  
 
-Данный вывод показывает нам имя пула, тип raid и его состав.
+Данный вывод показывает нам имя пула, тип raid и его состав.  
 2.4 Сделаем импорт данного пула к нам в ОС:
-```
+```bash
 zpool import -d zpoolexport/ otus
 zpool import -d zpoolexport/ otus newotus # импорт с новым именем
 zpool status
