@@ -1,7 +1,7 @@
 # NFS. Работа с NFS
 
 ## Задача:
-** Развернуть сервер с NFS и подключить на клиенте сетевую директорию:
+Развернуть сервер с NFS и подключить на клиенте сетевую директорию:
 - vagrant up должен поднимать 2 настроенных виртуальных машины (сервер NFS и клиента) без дополнительных ручных действий;
 - на сервере NFS должна быть подготовлена и экспортирована директория; 
 - в экспортированной директории должна быть поддиректория с именем upload с правами на запись в неё; 
@@ -9,20 +9,22 @@
 - монтирование и работа NFS на клиенте должна быть организована с использованием NFSv3.
 
 ### Ход выполнения работы:
-1. Настраиваем сервер NFS 
-Заходим на сервер:
+1. Настраиваем сервер NFS
+   
+1.1 Заходим на сервер:
 ```
 vagrant ssh nfss
 ````
-Установим сервер NFS от имени пользователя имеющего повышенные привилегии:
+1.2 Установим сервер NFS от имени пользователя имеющего повышенные привилегии:
 ```
 apt install nfs-kernel-server
 ````
-Настройки сервера находятся в файле `/etc/nfs.conf`
+1.3 Настройки сервера находятся в файле `/etc/nfs.conf`
 
 <details>
 <summary>Настройки сервера по умолчанию</summary>
 
+```
 #
 # This is a general configuration for the
 # NFS daemons and tools
@@ -109,10 +111,10 @@ manage-gids=y
 #
 [svcgssd]
 # principal=
-
+```
 </details>
 
-Проверяем наличие слушающих портов 2049/udp, 2049/tcp, 111/udp, 111/tcp (не все они будут использоваться далее,  но их наличие сигнализирует о том, что необходимые сервисы готовы принимать внешние подключения):
+1.4 Проверяем наличие слушающих портов 2049/udp, 2049/tcp, 111/udp, 111/tcp (не все они будут использоваться далее,  но их наличие сигнализирует о том, что необходимые сервисы готовы принимать внешние подключения):
 ```
 ss -tnplu
 ss -tnplu | grep -E '2049|111'
@@ -121,33 +123,35 @@ ss -tnplu | grep -E '2049|111'
 <details>
 <summary>Результат выполнения команды</summary>
 
+```
 udp   UNCONN 0      0               0.0.0.0:111        0.0.0.0:*    users:(("rpcbind",pid=2410,fd=5),("systemd",pid=1,fd=129))
 udp   UNCONN 0      0                  [::]:111           [::]:*    users:(("rpcbind",pid=2410,fd=7),("systemd",pid=1,fd=131))
 tcp   LISTEN 0      64              0.0.0.0:2049       0.0.0.0:*
 tcp   LISTEN 0      4096            0.0.0.0:111        0.0.0.0:*    users:(("rpcbind",pid=2410,fd=4),("systemd",pid=1,fd=128))
 tcp   LISTEN 0      64                 [::]:2049          [::]:*
 tcp   LISTEN 0      4096               [::]:111           [::]:*    users:(("rpcbind",pid=2410,fd=6),("systemd",pid=1,fd=130))
-
+```
 </details>
 
-Создаём и настраиваем директорию, которая будет экспортирована в будущем 
+1.5 Создаём и настраиваем директорию, которая будет экспортирована в будущем 
 ```
-
 chown -R nobody:nogroup /srv/share
 chmod 0777 /srv/share/upload
 ```
-Cоздаём в файле /etc/exports структуру, которая позволит экспортировать ранее созданную директорию:
+1.6 Cоздаём в файле `/etc/exports` структуру, которая позволит экспортировать ранее созданную директорию:
 ```
 cat << EOF > /etc/exports 
 /srv/share 192.168.50.11/32(rw,sync,root_squash)
 EOF
 ```
-Проверяем файл `/etc/exports`
+1.7 Проверяем файл `/etc/exports`
 ```
 cat /etc/exports
 ```
-`/srv/share 192.168.50.11/32(rw,sync,root_squash)`
-Экспортируем ранее созданную директорию:
+```
+/srv/share 192.168.50.11/32(rw,sync,root_squash)
+```
+1.8 Экспортируем ранее созданную директорию:
 ```
 exportfs -r
 ```
@@ -155,16 +159,18 @@ exportfs -r
 <details>
 <summary>Результат выполнения команды</summary>
 
+```
 root@nfss:~# exportfs -r
 exportfs: /etc/exports [1]: Neither 'subtree_check' or 'no_subtree_check' specified for export "192.168.50.11/32:/srv/share".
   Assuming default behaviour ('no_subtree_check').
   NOTE: this default has changed since nfs-utils version 1.0.x
-
+```
 </details>
 
-Это предупреждение указывает на то, что NFS будет использовать поведение по умолчанию, которое в данном случае — no_subtree_check. Это означает, что NFS не будет проверять доступ к подкаталогам экспортируемого каталога.
+*Это предупреждение указывает на то, что NFS будет использовать поведение по умолчанию, которое в данном случае — no_subtree_check. Это означает, что NFS не будет проверять доступ к подкаталогам экспортируемого каталога.* 
 
-Проверяем экспортированную директорию следующей командой
+
+1.9 Проверяем экспортированную директорию следующей командой
 ```
 exportfs -s
 ```
@@ -172,30 +178,32 @@ exportfs -s
 <details>
 <summary>Результат выполнения команды</summary>
 
+```
 exportfs -s
 /srv/share  192.168.50.11/32(sync,wdelay,hide,no_subtree_check,sec=sys,rw,secure,root_squash,no_all_squash)
-
+```
 </details>
 
 2. Настраиваем клиент NFS
-Заходим на сервер клиент NFS
+   
+2.1 Заходим на сервер клиент NFS
 ```
 vagrant ssh nfsc 
 ```
-Установим пакет с NFS-клиентом от имени пользователя имеющего повышенные привилегии:
+2.2 Установим пакет с NFS-клиентом от имени пользователя имеющего повышенные привилегии:
 ```
 sudo apt install nfs-common
 ```
-Добавляем в /etc/fstab строку 
+2.3 Добавляем в /etc/fstab строку 
 ```
 echo "192.168.50.10:/srv/share/ /mnt nfs vers=3,noauto,x-systemd.automount 0 0" >> /etc/fstab
 ```
-Выполняем команды:
+2.4 Выполняем команды:
 ```bash
 systemctl daemon-reload  #команда используется для перезагрузки конфигурации systemd. Она необходима, когда вы вносите изменения в файлы конфигурации служб или создаете новые юниты (unit files). 
 systemctl restart remote-fs.target #команда перезапускает цель remote-fs.target, которая отвечает за монтирование удаленных файловых систем, таких как NFS.
 ``` 
-Заходим в директорию /mnt/ и проверяем успешность монтирования:
+2.5 Заходим в директорию /mnt/ и проверяем успешность монтирования:
 ```
 mount | grep mnt
 ```
@@ -203,105 +211,109 @@ mount | grep mnt
 <details>
 <summary>Результат выполнения команды</summary>
 
+```
 nsfs on /run/snapd/ns/lxd.mnt type nsfs (rw)
 systemd-1 on /mnt type autofs (rw,relatime,fd=51,pgrp=1,timeout=0,minproto=5,maxproto=5,direct,pipe_ino=27646)
-
+```
 </details>
 
-3. Проверка работоспособности
-Заходим на сервер. 
-Заходим в каталог /srv/share/upload
+3. Проверка работоспособности  
+3.1 На сервере заходим в каталог `/srv/share/upload`
 ```
 cd /srv/share/upload
 ```
-Создаём тестовый файл 
+3.2 Создаём тестовый файл 
 ```
 touch check_file
 ```
 
-Заходим на клиент.
-Заходим в каталог /mnt/upload
+3.3 На клиенте заходим в каталог `/mnt/upload`
 ```
 cd /mnt/upload
 ```
-Проверяем наличие ранее созданного файла
+3.4 Проверяем наличие ранее созданного файла
 ```
 ls -l
 ```
 <details>
 <summary>Результат выполнения команды</summary>
 
+```
 root@nfsc:/mnt/upload# ls -l
 total 0
 -rw-r--r-- 1 root root 0 Feb  8 10:34 check_file
-
+```
 </details>
 
-Создаём тестовый файл 
+3.5 Создаём тестовый файл 
 ```
 touch client_file
 ```
-Проверяем, что файл успешно создан.
+3.6 Проверяем, что файл успешно создан.
 ```
 ls -l
 ```
 <details>
 <summary>Результат выполнения команды</summary>
 
+```
 root@nfsc:/mnt/upload# ls -l
 total 0
 -rw-r--r-- 1 root   root    0 Feb  8 10:34 check_file
 -rw-r--r-- 1 nobody nogroup 0 Feb  8 10:37 client_file
-
+```
 </details>
 
-Предварительно проверяем клиент: 
-перезагружаем клиент
+3.7 Предварительно поверяем клиент:
+
+3.7.1 Перезагружаем клиент
 ```
 sudo reboot
 ```
-заходим на клиент
+3.7.2 Заходим на клиент
 ```
 vagrant ssh nfsc 
 ```
-Проверяем наличие ранее созданных файлов
+3.7.3 Проверяем наличие ранее созданных файлов
 ```
 ls -l /mnt/upload
 ```
 <details>
 <summary>Результат выполнения команды</summary>
 
+```
 vagrant@nfss:~$ ls -l /mnt/upload
 total 0
 -rw-r--r-- 1 root   root    0 Feb  8 10:34 check_file
 -rw-r--r-- 1 nobody nogroup 0 Feb  8 10:37 client_file
-
+```
 </details>
 
-Проверяем сервер: 
-перезагружаем сервер
+3.8 Проверяем сервер:  
+3.8.1 Перезагружаем сервер
 ```
 sudo reboot
 ```
-заходим на сервер
+3.8.2 Заходим на сервер
 ```
 vagrant ssh nfss
 ````
-проверяем наличие файлов в каталоге `/srv/share/upload/`
+3.8.3 Проверяем наличие файлов в каталоге `/srv/share/upload/`
 ```
 ls -l /srv/share/upload/
 ```
 <details>
 <summary>Результат выполнения команды</summary>
 
+```
 vagrant@nfss:~$ ls -l /srv/share/upload/
 total 0
 -rw-r--r-- 1 root   root    0 Feb  8 10:34 check_file
 -rw-r--r-- 1 nobody nogroup 0 Feb  8 10:37 client_file
-
+```
 </details>
 
-проверяем экспорты `exportfs -s`
+3.8.4 Проверяем экспорты `exportfs -s`
 ```
 sudo exportfs -s
 ```
@@ -309,89 +321,98 @@ sudo exportfs -s
 <details>
 <summary>Результат выполнения команды</summary>
 
+```
 exportfs -s
 /srv/share  192.168.50.11/32(sync,wdelay,hide,no_subtree_check,sec=sys,rw,secure,root_squash,no_all_squash)
-
+```
 </details>
 
-проверяем работу RPC 
+3.8.5 Проверяем работу RPC 
 ```
 showmount -a 192.168.50.10.
 ```
 <details>
 <summary>Результат выполнения команды</summary>
 
+```
 vagrant@nfss:~$ showmount -a 192.168.50.10
 All mount points on 192.168.50.10:
 192.168.50.11:/srv/share
-
+```
 </details>
 
 
-Проверяем клиент: 
-перезагружаем клиент
+3.9 Проверяем клиент:  
+
+3.9.1 Перезагружаем клиент
 ```
 sudo reboot
 ```
-заходим на клиент
+3.9.2 Заходим на клиент
 ```
 vagrant ssh nfsc 
 ```
-проверяем работу RPC 
+3.9.3 Проверяем работу RPC 
 ```
 showmount -a 192.168.50.10
 ```
 <details>
 <summary>Результат выполнения команды</summary>
 
+```
 vagrant@nfsc:~$ showmount -a 192.168.50.10
 All mount points on 192.168.50.10:
 192.168.50.11:/srv/share
-
+```
 </details>
 
-проверяем статус монтирования 
+3.9.4 Проверяем статус монтирования 
 ```
 mount | grep mnt
 ```
 <details>
 <summary>Результат выполнения команды</summary>
 
+```
 vagrant@nfsc:~$ mount | grep mnt
 systemd-1 on /mnt type autofs (rw,relatime,fd=61,pgrp=1,timeout=0,minproto=5,maxproto=5,direct,pipe_ino=15711)
 192.168.50.10:/srv/share/ on /mnt type nfs (rw,relatime,vers=3,rsize=131072,wsize=131072,namlen=255,hard,proto=tcp,timeo=600,retrans=2,sec=sys,mountaddr=192.168.50.10,mountvers=3,mountport=39568,mountproto=udp,local_lock=none,addr=192.168.50.10)
 nsfs on /run/snapd/ns/lxd.mnt type nsfs (rw)
-
+```
 </details>
-заходим в каталог /mnt/upload;
-проверяем наличие ранее созданных файлов
+
+3.9.5 Проверяем наличие ранее созданных файлов в каталоге `/mnt/upload`:
 ```
 ls -l /mnt/upload
 ```
 <details>
 <summary>Результат выполнения команды</summary>
 
+```
 vagrant@nfsc:~$ ls -l /mnt/upload
 total 0
 -rw-r--r-- 1 root   root    0 Feb  8 10:34 check_file
 -rw-r--r-- 1 nobody nogroup 0 Feb  8 10:37 client_file
-
+```
 </details>
-создаём тестовый файл touch final_check
+
+3.9.6 Создаём тестовый файл `final_check` 
 ```
 touch /mnt/upload/final_check
-```
-проверяем, что файл успешно создан.
+```  
+
+3.9.7 Проверяем, что файл успешно создан:
 ```
 ls -l /mnt/upload
 ```
 <details>
 <summary>Результат выполнения команды</summary>
 
+```
 vagrant@nfsc:~$ ls -l /mnt/upload
 total 0
 -rw-r--r-- 1 root    root    0 Feb  8 10:34 check_file
 -rw-r--r-- 1 nobody  nogroup 0 Feb  8 10:37 client_file
 -rw-rw-r-- 1 vagrant vagrant 0 Feb  8 11:04 final_check
-
+```
 </details>
