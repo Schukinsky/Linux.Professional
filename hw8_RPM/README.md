@@ -1,30 +1,30 @@
-# NFS. Работа с NFS
+# RPM. Сборка RPM-пакета и создание репозитория
 
 ## Задача:
-создать свой RPM (можно взять свое приложение, либо собрать к примеру Apache с определенными опциями);
-cоздать свой репозиторий и разместить там ранее собранный RPM;
-реализовать это все либо в Vagrant, либо развернуть у себя через Nginx и дать ссылку на репозиторий.
+- создать свой RPM (можно взять свое приложение, либо собрать к примеру Apache с определенными опциями);
+- cоздать свой репозиторий и разместить там ранее собранный RPM;
+- реализовать это все либо в Vagrant, либо развернуть у себя через Nginx и дать ссылку на репозиторий.
 
 ### Ход выполнения работы:
-1. 
-Для данного задания нам понадобятся следующие установленные пакеты:
+1. Создание RPM
+   
+1.1 Для данного задания нам понадобятся следующие установленные пакеты:
 ```
  yum install -y wget rpmdevtools rpm-build createrepo \
  yum-utils cmake gcc git nano
 ```
-Возьмем пакет Nginx и соберем его с дополнительным модулем ngx_broli
-Загрузим SRPM пакет Nginx для дальнейшей работы над ним:
+1.2 Возьмем пакет Nginx и соберем его с дополнительным модулем ngx_broli  
+1.3 Загрузим SRPM пакет Nginx для дальнейшей работы над ним:
 ```
 mkdir rpm && cd rpm
 yumdownloader --source nginx
 ```
-При установке такого пакета в домашней директории создается дерево каталогов для сборки, далее поставим все зависимости для сборки пакета Nginx:
+1.4 При установке такого пакета в домашней директории создается дерево каталогов для сборки, далее поставим все зависимости для сборки пакета Nginx:
 ```
 rpm -Uvh nginx*.src.rpm
 yum-builddep nginx
 ```
-Также нужно скачать исходный код модуля ngx_brotli — он
-потребуется при сборке:
+1.5 Также нужно скачать исходный код модуля ngx_brotli — он потребуется при сборке:
 ```
 cd /root
 git clone --recurse-submodules -j8 \
@@ -32,13 +32,13 @@ https://github.com/google/ngx_brotli
 cd ngx_brotli/deps/brotli
 mkdir out && cd out
 ```
-Собираем модуль ngx_brotli:
+1.6 Собираем модуль ngx_brotli:
 ```
 cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF -DCMAKE_C_FLAGS="-Ofast -m64 -march=native -mtune=native -flto -funroll-loops -ffunction-sections -fdata-sections -Wl,--gc-sections" -DCMAKE_CXX_FLAGS="-Ofast -m64 -march=native -mtune=native -flto -funroll-loops -ffunction-sections -fdata-sections -Wl,--gc-sections" -DCMAKE_INSTALL_PREFIX=./installed ..
 cmake --build . --config Release -j 2 --target brotlienc
 cd ../../../..
-
-Нужно поправить сам spec файл, чтобы Nginx собирался с необходимыми нам опциями: находим секцию с параметрами configure (до условий if) и добавляем указание на модуль (не забудьте указать завершающий обратный слэш):
+```
+1.7 Нужно поправить сам spec файл, чтобы Nginx собирался с необходимыми нам опциями: находим секцию с параметрами configure (до условий if) и добавляем указание на модуль (не забудьте указать завершающий обратный слэш):
 --add-module=/root/ngx_brotli \
 
 <details>
@@ -48,19 +48,19 @@ cd ../../../..
 
 </details>
 
-```
-Теперь можно приступить к сборке RPM пакета:
+1.8 Теперь можно приступить к сборке RPM пакета:
 ```
 cd ~/rpmbuild/SPECS/
 rpmbuild -ba nginx.spec -D 'debug_package %{nil}'
 ```
-Убедимся, что пакеты создались:
+1.9 Убедимся, что пакеты создались:
 ```
 ll /root/rpmbuild/RPMS/x86_64/
 ```
 <details>
 <summary>Результат выполнения команды</summary>
 
+```
 [root@localhost SPECS]# ll /root/rpmbuild/RPMS/x86_64/
 total 1992
 -rw-r--r--. 1 root root   36267 Feb  8 13:34 nginx-1.20.1-20.el9.alma.1.x86_64.rpm
@@ -71,21 +71,22 @@ total 1992
 -rw-r--r--. 1 root root   18165 Feb  8 13:34 nginx-mod-http-xslt-filter-1.20.1-20.el9.alma.1.x86_64.rpm
 -rw-r--r--. 1 root root   53796 Feb  8 13:34 nginx-mod-mail-1.20.1-20.el9.alma.1.x86_64.rpm
 -rw-r--r--. 1 root root   80282 Feb  8 13:34 nginx-mod-stream-1.20.1-20.el9.alma.1.x86_64.rpm
-
+```
 </details>
 
-Копируем пакеты в общий каталог:
+1.10 Копируем пакеты в общий каталог:
 ```
 cp ~/rpmbuild/RPMS/noarch/* ~/rpmbuild/RPMS/x86_64/
 cd ~/rpmbuild/RPMS/x86_64
 ```
-Теперь можно установить наш пакет и убедиться, что nginx работает:
+1.11 Теперь можно установить наш пакет и убедиться, что nginx работает:
 ```
 yum localinstall *.rpm
 ```
 <details>
 <summary>Результат выполнения команды</summary>
 
+```
 [root@localhost x86_64]# yum localinstall *.rpm
 Last metadata expiration check: 0:58:45 ago on Sat 08 Feb 2025 12:44:10 PM UTC.
 Dependencies resolved.
@@ -158,8 +159,10 @@ Installed:
   nginx-mod-mail-2:1.20.1-20.el9.alma.1.x86_64                 nginx-mod-stream-2:1.20.1-20.el9.alma.1.x86_64
 
 Complete!
-
+```
 </details>
+
+1.12 Запускаем nginx, проверяем статус:
 ```
 systemctl start nginx
 systemctl status nginx
@@ -167,6 +170,7 @@ systemctl status nginx
 <details>
 <summary>Результат выполнения команды</summary>
 
+```
 [root@localhost x86_64]# systemctl start nginx
 [root@localhost x86_64]# systemctl status nginx
 ● nginx.service - The nginx HTTP and reverse proxy server
@@ -188,25 +192,27 @@ Feb 08 13:43:11 localhost.localdomain systemd[1]: Starting The nginx HTTP and re
 Feb 08 13:43:11 localhost.localdomain nginx[38610]: nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
 Feb 08 13:43:11 localhost.localdomain nginx[38610]: nginx: configuration file /etc/nginx/nginx.conf test is successful
 Feb 08 13:43:11 localhost.localdomain systemd[1]: Started The nginx HTTP and reverse proxy server.
-
+```
 </details>
 
-Создать свой репозиторий и разместить там ранее собранный RPM
-Теперь приступим к созданию своего репозитория. Директория для статики у Nginx по умолчанию `/usr/share/nginx/html`. Создадим там каталог repo:
+2. Создать свой репозиторий и разместить там ранее собранный RPM
+
+2.1 Теперь приступим к созданию своего репозитория. Директория для статики у Nginx по умолчанию `/usr/share/nginx/html`. Создадим там каталог repo:
 ```
 mkdir /usr/share/nginx/html/repo
 ```
-Копируем туда наши собранные RPM-пакеты:
+2.2 Копируем туда наши собранные RPM-пакеты:
 ```
 cp ~/rpmbuild/RPMS/x86_64/*.rpm /usr/share/nginx/html/repo/
 ```
-Инициализируем репозиторий командой:
+2.3 Инициализируем репозиторий командой:
 ```
 createrepo /usr/share/nginx/html/repo/
 ```
 <details>
 <summary>Результат выполнения команды</summary>
 
+```
 [root@localhost x86_64]# mkdir /usr/share/nginx/html/repo
 [root@localhost x86_64]# cp ~/rpmbuild/RPMS/x86_64/*.rpm /usr/share/nginx/html/repo/
 [root@localhost x86_64]# createrepo /usr/share/nginx/html/repo/
@@ -216,12 +222,15 @@ Temporary output repo path: /usr/share/nginx/html/repo/.repodata/
 Preparing sqlite DBs
 Pool started (with 5 workers)
 Pool finished
-
+```
 </details>
-Для прозрачности настроим в NGINX доступ к листингу каталога. В файле /etc/nginx/nginx.conf в блоке server добавим следующие директивы:
 
+2.4 Для прозрачности настроим в NGINX доступ к листингу каталога. В файле /etc/nginx/nginx.conf в блоке server добавим следующие директивы:
+```
 	index index.html index.htm;
 	autoindex on;
+ ```
+ 
 <details>
 <summary>Результат изменения файла</summary>
 
@@ -229,18 +238,20 @@ Pool finished
 
 </details>
 
-Проверяем синтаксис и перезапускаем NGINX:
+2.5 Проверяем синтаксис:
 ```
 nginx -t
 ```
+Результат:
 ```
 nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
 nginx: configuration file /etc/nginx/nginx.conf test is successful
 ```
+2.6 Перезапускаем NGINX
 ```
 [root@packages ~]# nginx -s reload
 ```
-Проверяем доступность репозитория в браузере или с помощью curl:
+2.7 Проверяем доступность репозитория в браузере или с помощью curl:
 ```
 lynx http://localhost/repo/
 curl -a http://localhost/repo/
@@ -248,9 +259,6 @@ curl -a http://localhost/repo/
 <details>
 <summary>Результат выполнения команды</summary>
 
-[root@localhost x86_64]# curl -a http://localhost/repo/
-<html>
-<head><title>Index of /repo/</title></head>
 <body>
 <h1>Index of /repo/</h1><hr><pre><a href="../">../</a>
 <a href="repodata/">repodata/</a>                                          08-Feb-2025 13:49                   -
@@ -269,7 +277,7 @@ curl -a http://localhost/repo/
 
 </details>
 
-Добавим репозиторий в `/etc/yum.repos.d`:
+2.8 Добавим репозиторий в `/etc/yum.repos.d`:
 ```
 cat >> /etc/yum.repos.d/otus.repo << EOF
 [otus]
@@ -279,19 +287,20 @@ gpgcheck=0
 enabled=1
 EOF
 ```
-Убедимся, что репозиторий подключился и посмотрим, что в нем есть:
+2.9 Убедимся, что репозиторий подключился и посмотрим, что в нем есть:
 ```
 yum repolist enabled | grep otus
 ```
 <details>
 <summary>Результат выполнения команды</summary>
 
+```
 [root@localhost x86_64]# yum repolist enabled | grep otus
 otus                             otus-linux
-
+```
 </details>
 
-Добавим пакет в наш репозиторий:
+2.10 Добавим пакет в наш репозиторий:
 ```
 cd /usr/share/nginx/html/repo/
 wget https://repo.percona.com/yum/percona-release-latest.noarch.rpm
@@ -299,6 +308,7 @@ wget https://repo.percona.com/yum/percona-release-latest.noarch.rpm
 <details>
 <summary>Результат выполнения команды</summary>
 
+```
 [root@localhost x86_64]# cd /usr/share/nginx/html/repo/
 [root@localhost repo]# wget https://repo.percona.com/yum/percona-release-latest.noarch.rpm
 --2025-02-08 14:07:27--  https://repo.percona.com/yum/percona-release-latest.noarch.rpm
@@ -311,10 +321,10 @@ Saving to: ‘percona-release-latest.noarch.rpm’
 percona-release-latest.noarch.rpm            100%[===========================================================================================>]  27.25K  --.-KB/s    in 0.001s   
 
 2025-02-08 14:07:28 (39.9 MB/s) - ‘percona-release-latest.noarch.rpm’ saved [27900/27900]
-
+```
 </details>
 
-Обновим список пакетов в репозитории:
+2.11 Обновим список пакетов в репозитории:
 ```
 createrepo /usr/share/nginx/html/repo/
 yum makecache
@@ -324,6 +334,7 @@ percona-release.noarch 	1.0-27 		otus
 <details>
 <summary>Результат выполнения команды</summary>
 
+```
 [root@localhost repo]# createrepo /usr/share/nginx/html/repo/
 Directory walk started
 Directory walk done - 11 packages
@@ -339,16 +350,17 @@ otus-linux                                                                      
 Metadata cache created.
 [root@localhost repo]# yum list | grep otus
 percona-release.noarch                               1.0-29                              otus
-
+```
 </details>
 
-Так как Nginx у нас уже стоит, установим репозиторий percona-release:
+2.12 Так как Nginx у нас уже стоит, установим репозиторий percona-release:
 
 ```yum install -y percona-release.noarch```
 
 <details>
 <summary>Результат выполнения команды</summary>
 
+```
 [root@localhost repo]# yum install -y percona-release.noarch
 Last metadata expiration check: 0:01:35 ago on Sat 08 Feb 2025 02:10:06 PM UTC.
 Dependencies resolved.
@@ -398,10 +410,11 @@ Installed:
   percona-release-1.0-29.noarch
 
 Complete!
-
+```
 </details>
 
 Все прошло успешно. В случае, если вам потребуется обновить репозиторий (а это
 делается при каждом добавлении файлов) снова, то выполните команду
-createrepo /usr/share/nginx/html/repo/.
-
+```
+createrepo /usr/share/nginx/html/repo/
+```
