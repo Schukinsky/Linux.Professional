@@ -7,4 +7,6 @@ Otus learning - Administrator Linux. Professional
 ### [5. LVM](hw5_LVM/README.md)
 ### [6. ZFS](hw6_ZFS/README.md)
 ### [7. NFS](hw7_NFS/README.md)
-### [7. RPM](hw8_RPM/README.md)
+### [8. RPM](hw8_RPM/README.md)
+### [9. GRUB2](hw9_GRUB2/README.md)
+### [10. Systemd](hw10_Systemd/README.md)
