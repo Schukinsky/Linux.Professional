@@ -1,0 +1,20 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure("2") do |config|
+  # Используем образ Ubuntu 22.04.
+  config.vm.box = "generic/ubuntu2204"
+
+  # Настройка виртуальной сети с постоянным (статическим) IP.
+  config.vm.network "private_network", ip: "192.168.11.101"
+
+  # Настройка провайдера, например VirtualBox.
+  config.vm.provider "virtualbox" do |vb|
+    vb.name = "Ubuntu2204_VM"
+    vb.memory = "1024"
+    vb.cpus = 1
+  end
+
+  # Добавление выполнения provision.sh
+  config.vm.provision "shell", path: "provision.sh"
+end
