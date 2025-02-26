@@ -74,8 +74,9 @@ echo "Статистика предоставлена за промежуток 
     echo "$FILTERED_LOG" | awk '{print $9}' | sort | uniq -c | sort -nr >> "$REPORT_FILE"
 ```
 
-5.  <details>
- <summary>Полная версия [скрипта](/shared/log_report.sh)</summary>
+5. Полная версия [скрипта](/shared/log_report.sh)
+<details>
+ <summary>Полная версия</summary>
 
 ```bash
  #!/bin/bash
