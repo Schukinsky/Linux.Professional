@@ -10,3 +10,4 @@ Otus learning - Administrator Linux. Professional
 ### [8. RPM](hw8_RPM/README.md)
 ### [9. GRUB2](hw9_GRUB2/README.md)
 ### [10. Systemd](hw10_Systemd/README.md)
+### [11. Systemd](hw11_Bash/README.md)
