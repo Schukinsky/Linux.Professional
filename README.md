@@ -11,3 +11,4 @@ Otus learning - Administrator Linux. Professional
 ### [9. GRUB2](hw9_GRUB2/README.md)
 ### [10. Systemd](hw10_Systemd/README.md)
 ### [11. Bash](hw11_Bash/README.md)
+### [12. Processes](hw12_Processes/README.md)
