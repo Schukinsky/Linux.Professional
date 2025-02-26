@@ -16,5 +16,5 @@ Vagrant.configure("2") do |config|
   end
 
   # Добавление выполнения provision.sh
-  config.vm.provision "shell", path: "provision.sh"
+  #config.vm.provision "shell", path: "provision.sh"
 end

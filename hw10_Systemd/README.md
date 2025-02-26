@@ -1,4 +1,4 @@
-# Systemd. Работа с NFS
+# Systemd. Инициализация системы
 
 ## Задача:
 1. Написать service, который будет раз в 30 секунд мониторить лог на предмет наличия ключевого слова (файл лога и ключевое слово должны задаваться в /etc/default);
@@ -7,7 +7,6 @@
 
 
 ### Ход выполнения работы:
-1.  
 1.1 Cоздаём файл с конфигурацией для сервиса в директории /etc/default - из неё сервис будет брать необходимые переменные
 ```bash
 sudo bash -c 'cat > /etc/default/watchlog << "EOF"
@@ -149,7 +148,7 @@ systemctl status spawn-fcgi
 ```bash
 apt install nginx -y
 ```
-3.2 Для запуска нескольких экземпляров сервиса модифицируем исходный service для использования различной конфигурации, а также PID-файлов. Для этого создадим новый Unit для работы с шаблонами (/etc/systemd/system/nginx@.service):
+3.2 Для запуска нескольких экземпляров сервиса модифицируем исходный service для использования различной конфигурации, а также PID-файлов. Для этого создадим новый Unit для работы с шаблонами `(/etc/systemd/system/nginx@.service)`:
 
 ```bash
 cat > /etc/systemd/system/nginx@.service
@@ -302,6 +301,7 @@ systemctl status nginx@second
  <details>
  <summary>Результат</summary>
 
+```
 root@ubuntu2204:~# systemctl start nginx@first
 root@ubuntu2204:~# systemctl start nginx@second
 root@ubuntu2204:~# systemctl status nginx@second
@@ -318,6 +318,7 @@ root@ubuntu2204:~# systemctl status nginx@second
      CGroup: /system.slice/system-nginx.slice/nginx@second.service
              ├─60748 "nginx: master process /usr/sbin/nginx -c /etc/nginx/nginx-second.conf -g daemon on; master_process on;"
              └─60749 "nginx: worker process" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "">
+```
  </details>
 
  3.5  Cмотрим какие порты слушаются:
