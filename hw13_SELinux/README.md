@@ -115,14 +115,14 @@ Mar 16 08:45:04 selinux nginx[6784]: nginx: configuration file /etc/nginx/nginx.
 Mar 16 08:45:05 selinux systemd[1]: Started The nginx HTTP and reverse proxy server.
 ```
 Заходим в  браузер на хосте и переходим по адресу http://127.0.0.1:4881  
-[screen01](screen01.PNG)
+![screen01](screen01.PNG)
 
 Проверить статус параметра можно с помощью команды: `getsebool -a | grep nis_enabled`
 ```
 [root@selinux ~]# getsebool -a | grep nis_enabled
 nis_enabled --> on
 ```
-Вернём запрет работы nginx на порту 4881 обратно. Для этого отключим nis_enabled: `setsebool -P nis_enabled off`
+Вернём запрет работы nginx на порту 4881 обратно. Для этого отключим nis_enabled: `setsebool -P nis_enabled off`  
 После отключения nis_enabled служба nginx снова не запустится.
 
 - Способ 2.  Разрешим в SELinux работу nginx на порту TCP 4881 c помощью добавления нестандартного порта в имеющийся тип:
@@ -173,7 +173,7 @@ Mar 16 08:54:37 selinux nginx[6816]: nginx: the configuration file /etc/nginx/ng
 http_port_t                    tcp      80, 81, 443, 488, 8008, 8009, 8443, 9000
 pegasus_http_port_t            tcp      5988
 ```
-- Способ 3. Разрешим в SELinux работу nginx на порту TCP 4881 c помощью формирования и установки модуля SELinux:
+- Способ 3. Разрешим в SELinux работу nginx на порту TCP 4881 c помощью формирования и установки модуля SELinux:  
 Попробуем снова запустить Nginx: `systemctl start nginx`
 ```
 [root@selinux ~]# systemctl start nginx
@@ -247,16 +247,16 @@ Mar 16 09:08:06 selinux nginx[6903]: nginx: the configuration file /etc/nginx/ng
 Mar 16 09:08:06 selinux nginx[6903]: nginx: configuration file /etc/nginx/nginx.conf test is successful
 Mar 16 09:08:06 selinux systemd[1]: Started The nginx HTTP and reverse proxy server.
 ```
-После добавления модуля nginx запустился без ошибок. При использовании модуля изменения сохранятся после перезагрузки.  
-Также можно проверить работу nginx из браузера. Заходим в любой браузер на хосте и переходим по адресу http://127.0.0.1:4881 
-Просмотр всех установленных модулей: `semodule -l`
+После добавления модуля nginx запустился без ошибок. При использовании модуля изменения сохранятся после перезагрузки.    
+Также можно проверить работу nginx из браузера. Заходим в любой браузер на хосте и переходим по адресу http://127.0.0.1:4881   
+Просмотр всех установленных модулей: `semodule -l`  
 Для удаления модуля воспользуемся командой: `semodule -r nginx`
 ```
 [root@selinux ~]# semodule -r nginx
 libsemanage.semanage_direct_remove_key: Removing last nginx module (no other nginx module exists at another priority).
 ```
 2. Обеспечить работоспособность приложения при включенном selinux:
-Для выполнения данного задания используем виртуальную машину на Ubuntu, с установленными пакетами Ansible, Git, Vagrant, VirtualBox ([Vagrantfile](ansible_host/Vagrantfile))
+Для выполнения данного задания используем виртуальную машину на Ubuntu ([Vagrantfile](ansible_host/Vagrantfile)), с установленными пакетами Ansible, Git, Vagrant, VirtualBox.  
 Выполним клонирование репозитория:
 git clone https://github.com/Nickmob/vagrant_selinux_dns_problems.git
 ```
@@ -268,9 +268,9 @@ remote: Compressing objects: 100% (21/21), done.
 remote: Total 32 (delta 9), reused 29 (delta 9), pack-reused 0 (from 0)
 Unpacking objects: 100% (32/32), done.
 ```
-Перейдём в каталог со стендом: `cd vagrant_selinux_dns_problems`
-Развернём 2 ВМ с помощью vagrant: `vagrant up`
-После того, как стенд развернется, проверим ВМ с помощью команды: `vagrant status`
+Перейдём в каталог со стендом: `cd vagrant_selinux_dns_problems`  
+Развернём 2 ВМ с помощью vagrant: `vagrant up`  
+После того, как стенд развернется, проверим ВМ с помощью команды: `vagrant status`  
 ```
 vagrant@ubuntu-bionic:~/vagrant_selinux_dns_problems$ vagrant status
 Current machine states:
@@ -293,21 +293,17 @@ VM, run `vagrant status NAME`.
 update failed: SERVFAIL
 > quit
 ```
-Изменения внести не получилось. Давайте посмотрим логи SELinux, чтобы понять в чём может быть проблема.
+Изменения внести не получилось. Давайте посмотрим логи SELinux, чтобы понять в чём может быть проблема.  
 Для этого воспользуемся утилитой audit2why: 	
+```
 [vagrant@client ~]$ sudo -i
 [root@client ~]# cat /var/log/audit/audit.log | audit2why
-
+```
 ```
 [root@client ~]# cat /var/log/audit/audit.log | audit2why
 ```
 Тут мы видим, что на клиенте отсутствуют ошибки. 
 Не закрывая сессию на клиенте, подключимся к серверу ns01 и проверим логи SELinux:
-`vagrant ssh ns01 `
- sudo -i 
-[root@ns01 ~]# 
-[root@ns01 ~]# 
-[root@ns01 ~]# cat /var/log/audit/audit.log | audit2why
 ```
 vagrant@ubuntu-bionic:~/vagrant_selinux_dns_problems$ vagrant ssh ns01
 Last login: Sun Mar 16 11:07:18 2025 from 10.0.2.2
@@ -320,14 +316,14 @@ type=AVC msg=audit(1742123690.356:1873): avc:  denied  { write } for  pid=7883 c
 
                 You can use audit2allow to generate a loadable module to allow this access.
 ```
-В логах мы видим, что ошибка в контексте безопасности. Целевой контекст named_conf_t.
+В логах мы видим, что ошибка в контексте безопасности. Целевой контекст named_conf_t.  
 Для сравнения посмотрим существующую зону (localhost) и её контекст:
 ```
 [root@ns01 ~]# ls -alZ /var/named/named.localhost
 -rw-r-----. 1 root named system_u:object_r:named_zone_t:s0 152 Feb 19 16:04 /var/named/named.localhost
 ```
 
-У наших конфигов в /etc/named вместо типа named_zone_t используется тип named_conf_t.
+У наших конфигов в /etc/named вместо типа named_zone_t используется тип named_conf_t.  
 Проверим данную проблему в каталоге /etc/named:
 ```
 [root@ns01 ~]# ls -laZ /etc/named
@@ -341,7 +337,7 @@ drw-rwx---.  2 root named unconfined_u:object_r:named_conf_t:s0   56 Mar 16 11:0
 -rw-rw----.  1 root named system_u:object_r:named_conf_t:s0      657 Mar 16 11:07 named.newdns.lab
 ```
 
-Тут мы также видим, что контекст безопасности неправильный. Проблема заключается в том, что конфигурационные файлы лежат в другом каталоге. Посмотреть в каком каталоге должны лежать файлы, чтобы на них распространялись правильные политики SELinux можно с помощью команды: sudo semanage fcontext -l | grep named
+Тут мы также видим, что контекст безопасности неправильный. Проблема заключается в том, что конфигурационные файлы лежат в другом каталоге. Посмотреть в каком каталоге должны лежать файлы, чтобы на них распространялись правильные политики SELinux можно с помощью команды: `sudo semanage fcontext -l | grep named`
 
 ```
 [root@ns01 ~]# sudo semanage fcontext -l | grep named
@@ -426,7 +422,6 @@ drw-rwx---.  2 root named unconfined_u:object_r:named_conf_t:s0   56 Mar 16 11:0
 /var/named/chroot/lib64 = /usr/lib
 /var/named/chroot/var = /var
 ```
-
 Изменим тип контекста безопасности для каталога /etc/named: `sudo chcon -R -t named_zone_t /etc/named`
 ```
 [root@ns01 ~]# sudo chcon -R -t named_zone_t /etc/named
@@ -440,7 +435,6 @@ drw-rwx---.  2 root named unconfined_u:object_r:named_zone_t:s0   56 Mar 16 11:0
 -rw-rw----.  1 root named system_u:object_r:named_zone_t:s0      609 Mar 16 11:07 named.dns.lab.view1
 -rw-rw----.  1 root named system_u:object_r:named_zone_t:s0      657 Mar 16 11:07 named.newdns.lab
 ```
-
 Попробуем снова внести изменения с клиента: 
 ```
 [root@client ~]# nsupdate -k /etc/named.zonetransfer.key
@@ -450,7 +444,7 @@ drw-rwx---.  2 root named unconfined_u:object_r:named_zone_t:s0   56 Mar 16 11:0
 > send
 > quit
 ```
-[screen02](screen02.PNG)
+![screen02](screen02.PNG)
 
 ```
 [root@client ~]# dig www.ddns.lab
@@ -475,7 +469,7 @@ www.ddns.lab.           60      IN      A       192.168.50.15
 ;; WHEN: Sun Mar 16 11:35:20 UTC 2025
 ;; MSG SIZE  rcvd: 85
 ```
-Видим, что изменения применились
-Важно, что мы не добавили новые правила в политику для назначения этого контекста в каталоге. Значит, что при перемаркировке файлов контекст вернётся на тот, который прописан в файле политики.
+Видим, что изменения применились.  
+Важно, что мы не добавили новые правила в политику для назначения этого контекста в каталоге. Значит, что при перемаркировке файлов контекст вернётся на тот, который прописан в файле политики.  
 Для того, чтобы вернуть правила обратно, можно ввести команду: `restorecon -v -R /etc/named`
 
