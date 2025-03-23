@@ -1,0 +1,23 @@
+Vagrant.configure("2") do |config|
+    # Указываем базовый образ
+    config.vm.box = "ubuntu/jammy64"
+  
+    # Настройки сети
+    config.vm.network "forwarded_port", guest: 80, host: 8080 # Проброс порта 80 на хосте на порт 8080
+    config.vm.network "private_network", type: "dhcp" # Приватная сеть с DHCP
+  
+    # Настройки виртуальной машины
+    config.vm.provider "virtualbox" do |vb|
+      vb.memory = "1024" # Устанавливаем объем оперативной памяти
+      vb.cpus = 2 # Устанавливаем количество процессоров
+    end
+  
+    # Дополнительные настройки
+    config.vm.provision "shell", inline: <<-SHELL
+      # Установка обновлений и необходимых пакетов
+      apt-get update
+      apt-get upgrade -y
+      apt-get install -y build-essential
+    SHELL
+  end
+  
