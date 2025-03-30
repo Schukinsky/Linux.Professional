@@ -1,0 +1,12 @@
+global:
+  scrape_interval: 15s  # Интервал опроса всех таргетов (каждые 15 секунд)
+  evaluation_interval: 15s  # Интервал выполнения правил
+
+scrape_configs:
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  - job_name: 'target'
+    static_configs:
+      - targets: ['192.168.33.11:9100']
