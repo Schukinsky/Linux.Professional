@@ -107,6 +107,7 @@ http://localhost:3000
 ![screen02](screen02.PNG)
 
 3. Установим Node Exporter на виртуальную машину target:
+
 Add user for node_exporter:
 ```bash
 sudo useradd --no-create-home --shell /bin/false node_exporter
