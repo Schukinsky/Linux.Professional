@@ -191,7 +191,7 @@ udp   UNCONN 0      0                [::]:514          [::]:*    users:(("rsyslo
 tcp   LISTEN 0      25            0.0.0.0:514       0.0.0.0:*    users:(("rsyslogd",pid=2249,fd=7))
 tcp   LISTEN 0      25               [::]:514          [::]:*    users:(("rsyslogd",pid=2249,fd=8))
 ```
-12. На сервере web проверяем внрсию nginx:
+12. На сервере web проверяем версию nginx:
 ```
 root@web:~# nginx -v
 nginx version: nginx/1.18.0 (Ubuntu)
@@ -215,7 +215,7 @@ nginx: configuration file /etc/nginx/nginx.conf test is successful
 ```bash
 systemctl restart nginx
 ```
-16. Попробуем несколько раз зайти по адресу http://192.168.56.10
+16. Попробуем несколько раз зайти по адресу http://192.168.56.10. 
 Далее заходим на log-сервер и смотрим информацию об nginx:
 ```bash
 cat /var/log/rsyslog/web/nginx_access.log 
@@ -276,14 +276,14 @@ nano /etc/audit/rules.d/nginx_audit.rules
 ```bash
 augenrules --load
 ```
-(или можно перезапустить auditd: sudo systemctl restart auditd)
+(или можно перезапустить auditd: sudo systemctl restart auditd)  
 23. Настроим отправку событий Audit на удаленный RSYSLOG ЧЕРЕЗ audisp-remote:
 ```bash
 sudo nano /etc/audit/audisp-remote.conf
 ```  
 remote_server = 192.168.56.15
 port = 60
-transport = tcp
+transport = tcp  
 24. Настройте плагин audisp-remote для активации отправки событий. Для этого откройте файл /etc/audit/plugins.d/au-remote.conf:
 ```bash
 nano /etc/audit/plugins.d/au-remote.conf
