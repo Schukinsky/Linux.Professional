@@ -107,7 +107,8 @@ borg list borg@192.168.11.160:/var/backup/::etc-2025-04-16_13:37:33
 ```bash
 borg extract borg@192.168.11.160:/var/backup/::etc-2025-04-16_13:37:33 etc/hostname
 ```
-![screen03](screen03.PNG)
+![screen03](screen03.PNG)  
+
 5. Автоматизируем создание бэкапов с помощью systemd  
 5.1 Создаем сервис в каталоге /etc/systemd/system/
 ```bash
