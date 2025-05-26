@@ -19,3 +19,7 @@ Otus learning - Administrator Linux. Professional
 ### [17. Rsyslog](hw17_Rsyslog/README.md)
 ### [18. Borgbackup](hw18_Borgbackup/README.md)
 ### [19. Network](hw19_Network/README.md)
+### [20. DHCP-PXE](hw20_DHCP-PXE/README.md)
+### [21. IPTABLES](hw21_Iptables/README.md)
+### [22. OSPF](hw22_OSPF/README.md)
+### [23. VPN](hw23_VPN/README.md)
