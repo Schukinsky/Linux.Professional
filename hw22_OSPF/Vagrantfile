@@ -1,0 +1,54 @@
+MACHINES = {
+  router1: {
+    box_name: "ubuntu/focal64",
+    vm_name: "router1",
+    net: [
+      { ip: '10.0.10.1', netmask: "255.255.255.252", virtualbox__intnet: "r1-r2" },
+      { ip: '10.0.12.1', netmask: "255.255.255.252", virtualbox__intnet: "r1-r3" },
+      { ip: '192.168.10.1', netmask: "255.255.255.0", virtualbox__intnet: "net1" },
+      { ip: '192.168.50.10' }
+    ]
+  },
+
+  router2: {
+    box_name: "ubuntu/focal64",
+    vm_name: "router2",
+    net: [
+      { ip: '10.0.10.2', netmask: "255.255.255.252", virtualbox__intnet: "r1-r2" },
+      { ip: '10.0.11.2', netmask: "255.255.255.252", virtualbox__intnet: "r2-r3" },
+      { ip: '192.168.20.1', netmask: "255.255.255.0", virtualbox__intnet: "net2" },
+      { ip: '192.168.50.11' }
+    ]
+  },
+
+  router3: {
+    box_name: "ubuntu/focal64",
+    vm_name: "router3",
+    net: [
+      { ip: '10.0.11.1', netmask: "255.255.255.252", virtualbox__intnet: "r2-r3" },
+      { ip: '10.0.12.2', netmask: "255.255.255.252", virtualbox__intnet: "r1-r3" },
+      { ip: '192.168.30.1', netmask: "255.255.255.0", virtualbox__intnet: "net3" },
+      { ip: '192.168.50.12' }
+    ]
+  }
+}
+
+Vagrant.configure("2") do |config|
+  MACHINES.each do |name, machine|
+    config.vm.define name do |box|
+      box.vm.box = machine[:box_name]
+      box.vm.hostname = machine[:vm_name]
+
+      machine[:net].each do |netconf|
+        box.vm.network("private_network", **netconf)
+      end
+
+      # Если потребуется задать дополнительные настройки адаптеров,
+      # используйте блок provider, например:
+      # box.vm.provider "virtualbox" do |vb|
+      #   vb.customize ["modifyvm", :id, "--nic2", "hostonly"]
+      # end
+
+    end
+  end
+end
