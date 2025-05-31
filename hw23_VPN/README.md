@@ -5,13 +5,15 @@
 2. Поднять RAS на базе OpenVPN с клиентскими сертификатами, подключиться с локальной машины на ВМ
 
 ## Выполнение:
+
+## VPN между двумя ВМ
 1. Развернем две виртуальные машины, используя [Vagrantfile](Vagrantfile):
-```bash
+```
 vagrant up
 ```
 
 2. На server и client машинах:
-```bash
+```
 sudo -i
 apt update
 apt install openvpn iperf3 selinux-utils
@@ -21,12 +23,12 @@ setenforce 0
 3. Настройка server:
 
 - Cоздаем файл-ключ:
-```bash
+```
 openvpn --genkey secret /etc/openvpn/static.key
 ```
 
 - Cоздаем конфигурационный файл OpenVPN:
-```bash
+```
 nano /etc/openvpn/server.conf
 ```
 Содержимое файла server.conf:
@@ -42,7 +44,7 @@ verb 3
 ```
 
 - Создаем service unit для запуска OpenVPN:
-```bash
+```
 nano /etc/systemd/system/openvpn@.service
 ```
 Содержимое файла-юнита:
@@ -59,7 +61,7 @@ WantedBy=multi-user.target
 ```
 
 - Запускаем сервис:
-```bash
+```
 systemctl start openvpn@server 
 systemctl enable openvpn@server
 ```
@@ -67,7 +69,7 @@ systemctl enable openvpn@server
 
 4. Настройка client: 
 - Cоздаем конфигурационный файл OpenVPN:
-```bash
+```
 nano /etc/openvpn/server.conf
 ```
 Содержимое конфигурационного файла:
@@ -87,7 +89,7 @@ verb 3
 - На client в директорию /etc/openvpn необходимо скопировать файл-ключ static.key, который был создан на server.    
 
 - Создаем service unit для запуска OpenVPN:
-```bash
+```
 nano /etc/systemd/system/openvpn@.service
 ```
 Содержимое файла-юнита:
@@ -103,7 +105,7 @@ ExecStart=/usr/sbin/openvpn --cd /etc/openvpn/ --config %i.conf
 WantedBy=multi-user.target
 ```
 - Запускаем сервис:
-```bash
+```
 systemctl start openvpn@server 
 systemctl enable openvpn@server
 ```
@@ -111,17 +113,17 @@ systemctl enable openvpn@server
 
 5. Измерение скорости в туннеле: 
 - На server  запускаем iperf3 в режиме сервера: 
-```bash
+```
 iperf3 -s & 
 ```
 - На client  запускаем iperf3 в режиме клиента и замеряем  скорость в туннеле: 
-```bash
+```
 iperf3 -c 10.10.10.1 -t 40 -i 5
 ```
 ![screen03](screen03.PNG)
 
 - На server и client в /etc/openvpn/server.conf мняем `dev tap` -> `dev tun` и перезапускаем сервис:
-```bash
+```
 nano /etc/openvpn/server.conf
 systemctl restart openvpn@server.service
 ```
@@ -129,7 +131,7 @@ systemctl restart openvpn@server.service
 - Повторяем замерскорости для режима работы tun:
 ![screen04](screen04.PNG)
 
-Вывод:
+Вывод:  
 Режим TUN  
 - Работает на уровне 3 (сетевом уровне) модели OSI.  
 - Передаёт только IP-пакеты (т.е. работает с маршрутизацией IP-трафика).  
@@ -158,46 +160,45 @@ systemctl restart openvpn@server.service
 - TUN – туннелирование на сетевом уровне, подходит для IP-маршрутизации.
 - TAP – туннелирование на канальном уровне, эмулирует Ethernet-сеть и поддерживает широковещательный трафик.
 
-6. RAS на базе OpenVPN  
-Настройка сервера:  
-
+## RAS на базе OpenVPN
+6. Настройка сервера:  
 - Устанавливаем необходимые пакеты:  
-```bash
+```
 sudo -i
 apt update
 apt install openvpn easy-rsa
 ```
 
 - Переход в директорию и инициализация PKI:
-```bash 
+``` 
 cd /etc/openvpn
 /usr/share/easy-rsa/easyrsa init-pki
 ```
 - Создание центра сертификации (CA):
-```bash
+```
 /usr/share/easy-rsa/easyrsa build-ca
 ```
 - Генерация запроса сертификата для сервера:
-```bash
+```
 echo 'rasvpn' | /usr/share/easy-rsa/easyrsa gen-req server nopass
 ```
 - Подписание запроса сертификата сервера:
-```bash
+```
 echo 'yes' | /usr/share/easy-rsa/easyrsa sign-req server server
 ```
 - Генерация DH-параметров, ключей и прочих необходимых файлов:
-```bash
+```
 /usr/share/easy-rsa/easyrsa gen-dh
 openvpn --genkey secret ca.key
 ```
 - Генерируем необходимые ключи и сертификаты для клиента:
-```bash
+```
 echo 'client' | /usr/share/easy-rsa/easyrsa gen-req client nopass
 echo 'yes' | /usr/share/easy-rsa/easyrsa sign-req client client
 ```
 
 - Создаем конфигурационный файл сервера:  
-```bash
+```
 nano /etc/openvpn/server.conf
 ```
 Содержимое файла server.conf:  
@@ -223,24 +224,24 @@ verb 3
 ```
 
 - Зададим параметр iroute для клиента: 
-```bash 
+``` 
 echo 'iroute 10.10.10.0 255.255.255.0' > /etc/openvpn/client/client
 ```
 
 - Запускаем сервис (при необходимости создать файл юнита как в задании 1):
-```bash
+```
 systemctl start openvpn@server
 systemctl enable openvpn@server
 ```
 
 7. Настройка хост-машины:
 - Устанавливаем OpenVPN:
-```bash
+```
 sudo apt update
 sudo apt install openvpn
 ```
 - Необходимо создать файл client.conf:
-```bash
+```
 nano /etc/openvpn/client.conf
 ```
 Содержимое файла client.conf:
@@ -262,12 +263,12 @@ verb 3
 ```
 - Копируем файлы client.conf, ca.crt, client.crt и client.key в директорию /etc/openvpn/
 - Для проверки подключения к VPN-серверу выполняем команду:
-```bash
+```
 sudo openvpn --config /etc/openvpn/client.conf
 ```
 ![screen05](screen05.PNG)  
 - Автозапуск OpenVPN
-```bash
+```
 nano /etc/systemd/system/openvpn-client@.service
 ```
 ```
@@ -284,12 +285,12 @@ Restart=on-failure
 WantedBy=multi-user.target
 ```
 
-```bash
+```
 systemctl enable openvpn-client@client
 systemctl start openvpn-client@client
 ```
 - Проверяем пинг по внутреннему IP адресу  сервера в туннеле: 
-```bash
+```
 ping -c 4 10.10.10.1
 ```
 ![screen06](screen06.PNG)  
