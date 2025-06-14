@@ -21,23 +21,24 @@
 <details>
   <summary>Vagrantfile</summary>
 
+```
 Vagrant.configure("2") do |config|
   config.vm.box = "ubuntu/focal64"  # или другой образ (например, "ubuntu/focal64")
 
-  # Настройка сети (опционально)
+  # Настройка сети
   config.vm.network "forwarded_port", guest: 22, host: 2222
 
   # Проброс папки
   config.vm.synced_folder "./local_folder", "/home/vagrant/shared_folder"
 
-  # Настройка ресурсов VM (оптимальные для современных версий)
+  # Настройка ресурсов VM 
   config.vm.provider "virtualbox" do |vb|
     vb.memory = 6096  # 4 ГБ ОЗУ
     vb.cpus = 4       # 4 ядра CPU
     vb.customize ["modifyvm", :id, "--nested-hw-virt", "on"]  # Для вложенной виртуализации
   end
 
-  # Установка СОВМЕСТИМЫХ современных версий
+  # Установка современных версий
   config.vm.provision "shell", inline: <<-SHELL
     # Обновление системы
     sudo apt-get update -y
@@ -66,18 +67,17 @@ Vagrant.configure("2") do |config|
     echo "Vagrant: $(vagrant --version)"
   SHELL
 end 
+```
 </details>
 
 1. Клонируем репозиторий:
 ```bash
 git clone https://github.com/Schukinsky/Linux.Professional/tree/main/hw24_DNS.git
 ```
-2. Разворачиваем стенд:
-*
-Выполнял в два этапа:
-1. `vagrant up` с закомментированным блоком provision
-2. `vagrant provision` с блоком provision
-*
+2. Разворачиваем стенд:  
+*Выполнял в два этапа:*  
+*1. `vagrant up` с закомментированным блоком provision*  
+*2. `vagrant provision` с блоком provision*
 
 ```bash
 vagrant up
@@ -86,6 +86,7 @@ vagrant provision
 <details>
   <summary>Результат выполнения команды</summary>
 
+```
 root@ubuntu-focal:~/dns# vagrant up
 ==> vagrant: A new version of Vagrant is available: 2.4.6 (installed version: 2.2.19)!
 ==> vagrant: To upgrade visit: https://www.vagrantup.com/downloads.html
@@ -264,7 +265,8 @@ Bringing machine 'client2' up with 'virtualbox' provider...
 ==> client2: Setting hostname...
 ==> client2: Configuring and enabling network interfaces...
 ==> client2: Rsyncing folder: /root/dns/ => /vagrant
-
+```
+```
 root@ubuntu-focal:~/dns# vagrant provision
 ==> ns01: Running provisioner: ansible...
     ns01: Running ansible-playbook...
@@ -627,6 +629,7 @@ changed: [client2]
 
 PLAY RECAP *********************************************************************
 client2                    : ok=9    changed=6    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0
+```
 </details>
 
 После выполнения команды `vagrant up` была развернута тестовая среда, состоящая из четырех виртуальных машин.  
@@ -634,7 +637,7 @@ client2                    : ok=9    changed=6    unreachable=0    failed=0    s
 Затем система применила Ansible-сценарий provisioning/playbook.yml, который произвел настройку всех ВМ в соответствии с требованиями задания.
 
 3. Подключимся к client и выполним проверки:
-````bash
+```bash
 vagrant ssh client
 ping www.newdns.lab
 ping web1.dns.lab
@@ -683,10 +686,10 @@ rtt min/avg/max/mdev = 0.017/0.053/0.086/0.033 ms
 [vagrant@client ~]$ ping web2.dns.lab
 ping: web2.dns.lab: Name or service not known
 ```
-Мы видим, что client видит обе зоны (dns.lab и newdns.lab), однако информацию о хосте web2.dns.lab он получить не может
+Мы видим, что client видит обе зоны (dns.lab и newdns.lab), однако информацию о хосте web2.dns.lab он получить не может.
 
 4. Подключимся к client2 и выполним проверки:
-````bash
+```bash
 vagrant ssh client2
 ping www.newdns.lab
 ping web1.dns.lab
