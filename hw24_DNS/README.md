@@ -72,7 +72,8 @@ end
 
 1. Клонируем репозиторий:
 ```bash
-git clone https://github.com/Schukinsky/Linux.Professional/tree/main/hw24_DNS.git
+git clone https://github.com/Schukinsky/Linux.Professional.git
+cd Linux.Professional/hw24_DNS
 ```
 2. Разворачиваем стенд:  
 *Выполнял в два этапа:*  
