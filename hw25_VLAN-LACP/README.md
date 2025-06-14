@@ -271,7 +271,7 @@ USERCTL=no
 ```
 nano /etc/sysconfig/network-scripts/ifcfg-bond0
 ```
-для inetRouter
+для inetRouter:
 ```
 DEVICE=bond0
 NAME=bond0
@@ -343,7 +343,7 @@ tcpdump -i eth1 'icmp'
 tcpdump -i eth2 'icmp'
 ```
 ![screen02](screen02.PNG) 
-Видим, что трафик идкт через `eth1`.  
+Видим, что трафик идет через `eth1`.  
 - Через третий терминал отключим `eth1` на inetRouter:
 ```
 [root@inetRouter ~]# ip link set down eth1 
