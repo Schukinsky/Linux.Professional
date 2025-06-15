@@ -1,8 +1,8 @@
 # LDAP (Lightweight Directory Access Protocol)
 
 ## Задача:
-Установить FreeIPA
-Написать Ansible-playbook для конфигурации клиента
+- Установить FreeIPA
+- Написать Ansible-playbook для конфигурации клиента
 
 ## Выполнение:
 1. Развернем стенд, используя [Vagrantfile](Vagrantfile):
@@ -417,9 +417,12 @@ kdestroy
 192.168.57.10 ipa.otus.lan
 ```
 Откроется окно управления FreeIPA-сервером:
+  
 ![screen01](screen01.PNG)  
-В имени пользователя укажем admin, в пароле укажем наш IPA admin password и нажмём войти:
-![screen02](screen02.PNG)
+  
+В имени пользователя укажем admin, в пароле укажем наш IPA admin password и нажмём войти:  
+  
+![screen02](screen02.PNG)  
 
 3. Ansible playbook для конфигурации клиента:
 ```
@@ -473,7 +476,7 @@ client2.otus.lan           : ok=10   changed=5    unreachable=0    failed=0    s
 ![screen03](screen03.PNG)
 
 4. Проверка:  
-После подключения хостов к FreeIPA-сервер нужно проверить, что мы можем получить билет от Kerberos сервера: kinit admin
+После подключения хостов к FreeIPA-сервер нужно проверить, что мы можем получить билет от Kerberos сервера: kinit admin  
 Если подключение выполнено правильно, то мы сможем получить билет, после ввода пароля.  
 
 Давайте проверим работу LDAP, для этого на сервере FreeIPA создадим пользователя и попробуем залогиниться к клиенту:
@@ -513,7 +516,7 @@ Added user "otus-user"
   Member of groups: ipausers
   Kerberos keys available: True
   ```
-- На хосте client1 выполним команду 
+- На хосте client1 выполним команду:
 ```
 kinit otus-user
 ```
@@ -525,5 +528,6 @@ Enter new password:
 Enter it again:
 ```
 Система запросит у нас пароль и попросит ввести новый пароль. 
-На этом процесс добавления хостов к FreeIPA-серверу завершен.
+На этом процесс добавления хостов к FreeIPA-серверу завершен.  
+  
 ![screen04](screen04.PNG)
