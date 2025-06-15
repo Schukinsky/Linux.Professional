@@ -25,3 +25,4 @@ Otus learning - Administrator Linux. Professional
 ### [23. VPN](hw23_VPN/README.md)
 ### [24. DNS](hw24_DNS/README.md)
 ### [25. VLAN-LACP](hw25_VLAN-LACP/README.md)
+### [26. LDAP](hw26_LDAP/README.md)
