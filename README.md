@@ -26,3 +26,4 @@ Otus learning - Administrator Linux. Professional
 ### [24. DNS](hw24_DNS/README.md)
 ### [25. VLAN-LACP](hw25_VLAN-LACP/README.md)
 ### [26. LDAP](hw26_LDAP/README.md)
+### [27. DynamicWeb](hw27_DynamicWeb/README.md)
