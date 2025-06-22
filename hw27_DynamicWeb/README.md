@@ -119,14 +119,15 @@ DynamicWeb                 : ok=10   changed=8    unreachable=0    failed=0    s
 2. Проверка:
 - http://localhost:8081/  
 
-![screen01](screen01.PNG)  
+![screen01](screen01.png)  
 
 - http://localhost:8081/
-![screen02](screen02.PNG)
+- 
+![screen02](screen02.png)  
 
 - http://localhost:8083/  
 
-![screen03](screen03.PNG) 
+![screen03](screen03.png)  
 
 При проверке работоспособности Wordpress возникла ошибка установки соединения с базой данных. Поверяем статус контейнеров:  
 ```
