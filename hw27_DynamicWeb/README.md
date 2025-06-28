@@ -179,4 +179,21 @@ database     | 2025-06-22T18:27:46.491903Z 0 [ERROR] [MY-010457] [Server] --init
 database     | 2025-06-22T18:27:46.491949Z 0 [ERROR] [MY-013236] [Server] The designated data directory /var/lib/mysql/ is unusable. You can remove all files that the server added to it.     
 database     | 2025-06-22T18:27:46.492794Z 0 [ERROR] [MY-010119] [Server] Aborting
 ```
-Самостоятельно устранить ошибку не удалось (((
+Ошибку удалось устранить монтированием именованного volume вместо хост-папки:
+```
+volumes:
+      - dbdata:/var/lib/mysql
+
+# Описываем именованный volume для MySQL
+volumes:
+  dbdata:
+```
+И ослаблением политики безопасности контейнера:
+```
+    security_opt:
+      - seccomp:unconfined
+      - apparmor:unconfined
+```
+![screen04](screen04.png)  
+
+![screen05](screen05.png) 
