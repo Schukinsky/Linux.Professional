@@ -339,7 +339,7 @@ mysql> SELECT @@server_id;
 |           2 |
 +-------------+
 ```
--Заливаем дамп мастера и убеждаемся что база есть и она без лишних таблиц:
+- Заливаем дамп мастера и убеждаемся что база есть и она без лишних таблиц:
 ```
 mysql> SOURCE /vagrant/master.sql
 ```
@@ -439,7 +439,7 @@ Master_SSL_Verify_Server_Cert: No
             Network_Namespace:
 1 row in set, 1 warning (0.00 sec)
 ```
-6. Проверим репликацию. 
+6. Проверим репликацию: 
 - На мастере:
 ```
 mysql> USE bet;
@@ -508,7 +508,7 @@ CigAATtPzeY=
 /*!80001 SET @@session.original_commit_timestamp=1751198209450585*//*!*/;   
 /*!80014 SET @@session.original_server_version=80042*//*!*/;
 /*!80014 SET @@session.immediate_server_version=80042*//*!*/;
-**SET @@SESSION.GTID_NEXT= 'b1934aa7-54d1-11f0-b5ba-080027bb5920:40'/*!*/;**   
+SET @@SESSION.GTID_NEXT= 'b1934aa7-54d1-11f0-b5ba-080027bb5920:40'/*!*/;  
 # at 243
 #250629 11:56:49 server id 1  end_log_pos 319 CRC32 0x091e02fc  Query   thread_id=16        exec_time=0     error_code=0
 SET TIMESTAMP=1751198209/*!*/;
@@ -527,7 +527,7 @@ BEGIN
 #250629 11:56:49 server id 1  end_log_pos 449 CRC32 0x399a1102  Query   thread_id=16        exec_time=0     error_code=0
 use `bet`/*!*/;
 SET TIMESTAMP=1751198209/*!*/;
-**INSERT INTO bookmaker (id,bookmaker_name) VALUES(1,'1xbet')**
+INSERT INTO bookmaker (id,bookmaker_name) VALUES(1,'1xbet')
 /*!*/;
 # at 449
 #250629 11:56:49 server id 1  end_log_pos 480 CRC32 0x73f09c6b  Xid = 432   
