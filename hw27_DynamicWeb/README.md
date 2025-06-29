@@ -1,7 +1,7 @@
 # Dynamic Web (Динамический сайт)
 
 ## Задача:
-Развернуть стенд nginx + ~~php-fpm (wordpress)~~ + python (django) + js(node.js) с деплоем через docker-compose.
+Развернуть стенд nginx + php-fpm (wordpress) + python (django) + js(node.js) с деплоем через docker-compose.
 
 ## Выполнение:
 1. Развернем стенд, используя [Vagrantfile](Vagrantfile):
