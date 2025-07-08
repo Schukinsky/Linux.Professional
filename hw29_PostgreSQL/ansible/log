@@ -1,0 +1,198 @@
+sudo vagrant provision barman --provision-with ansible
+==> barman: Running provisioner: ansible...
+    barman: Running ansible-playbook...
+
+PLAY [Postgres] ****************************************************************
+
+TASK [Gathering Facts] *********************************************************
+[WARNING]: Platform linux on host barman is using the discovered Python
+interpreter at /usr/bin/python3.10, but future installation of another Python
+interpreter could change the meaning of that path. See
+https://docs.ansible.com/ansible-
+core/2.18/reference_appendices/interpreter_discovery.html for more information.
+ok: [barman]
+[WARNING]: Platform linux on host node1 is using the discovered Python
+interpreter at /usr/bin/python3.10, but future installation of another Python
+interpreter could change the meaning of that path. See
+https://docs.ansible.com/ansible-
+core/2.18/reference_appendices/interpreter_discovery.html for more information.
+ok: [node1]
+[WARNING]: Platform linux on host node2 is using the discovered Python
+interpreter at /usr/bin/python3.10, but future installation of another Python
+interpreter could change the meaning of that path. See
+https://docs.ansible.com/ansible-
+core/2.18/reference_appendices/interpreter_discovery.html for more information.
+ok: [node2]
+
+TASK [install base tools] ******************************************************
+ok: [node2]
+ok: [node1]
+ok: [barman]
+
+PLAY [install postgres 14 and set up replication] ******************************
+
+TASK [Gathering Facts] *********************************************************
+ok: [node1]
+ok: [node2]
+
+TASK [install_postgres : install postgresql-server 14] *************************
+ok: [node2]
+ok: [node1]
+
+TASK [install_postgres : enable and start service] *****************************
+ok: [node1]
+changed: [node2]
+
+TASK [postgres_replication : install base tools] *******************************
+ok: [node2]
+ok: [node1]
+
+TASK [postgres_replication : Create replicator user] ***************************
+skipping: [node2]
+fatal: [node1]: FAILED! => {"msg": "Failed to set permissions on the temporary files Ansible needs to create when becoming an unprivileged user (rc: 1, err: chmod: invalid mode: ‘A+user:postgres:rx:allow’\nTry 'chmod --help' for more information.\n}). For information on working around this, see https://docs.ansible.com/ansible-core/2.18/playbook_guide/playbooks_privilege_escalation.html#risks-of-becoming-an-unprivileged-user"}
+...ignoring
+
+TASK [postgres_replication : stop postgresql-server on node2] ******************
+skipping: [node1]
+changed: [node2]
+
+TASK [postgres_replication : copy postgresql.conf] *****************************
+skipping: [node2]
+ok: [node1]
+
+TASK [postgres_replication : copy pg_hba.conf] *********************************
+skipping: [node2]
+changed: [node1]
+
+TASK [postgres_replication : restart postgresql-server on node1] ***************
+skipping: [node2]
+changed: [node1]
+
+TASK [postgres_replication : Remove files from data catalog] *******************
+skipping: [node1]
+ok: [node2]
+
+TASK [postgres_replication : copy files from master to slave] ******************
+skipping: [node1]
+fatal: [node2]: FAILED! => {"msg": "Failed to set permissions on the temporary files Ansible needs to create when becoming an unprivileged user (rc: 1, err: chmod: invalid mode: ‘A+user:postgres:rx:allow’\nTry 'chmod --help' for more information.\n}). For information on working around this, see https://docs.ansible.com/ansible-core/2.18/playbook_guide/playbooks_privilege_escalation.html#risks-of-becoming-an-unprivileged-user"}
+
+TASK [postgres_replication : copy postgresql.conf] *****************************
+skipping: [node1]
+
+TASK [postgres_replication : copy pg_hba.conf] *********************************
+skipping: [node1]
+
+TASK [postgres_replication : start postgresql-server on node2] *****************
+skipping: [node1]
+
+PLAY [set up backup] ***********************************************************
+
+TASK [Gathering Facts] *********************************************************
+ok: [barman]
+ok: [node1]
+
+TASK [install_barman : install base tools] *************************************
+ok: [node1]
+ok: [barman]
+
+TASK [install_barman : install barman and postgresql packages on barman] *******
+skipping: [node1]
+ok: [barman]
+
+TASK [install_barman : install barman-cli and postgresql packages on nodes] ****
+skipping: [barman]
+ok: [node1]
+
+TASK [install_barman : generate SSH key for postgres] **************************
+skipping: [barman]
+[WARNING]: Found existing ssh key private file
+"/var/lib/postgresql/.ssh/id_rsa", no force, so skipping ssh-keygen generation
+ok: [node1]
+
+TASK [install_barman : generate SSH key for barman] ****************************
+skipping: [node1]
+ok: [barman]
+[WARNING]: Found existing ssh key private file "/var/lib/barman/.ssh/id_rsa",
+no force, so skipping ssh-keygen generation
+
+TASK [install_barman : fetch all public ssh keys node1] ************************
+skipping: [barman]
+changed: [node1]
+
+TASK [install_barman : transfer public key to barman] **************************
+skipping: [barman]
+ok: [node1 -> barman(192.168.57.13)]
+
+TASK [install_barman : fetch all public ssh keys barman] ***********************
+skipping: [node1]
+changed: [barman]
+
+TASK [install_barman : transfer public key to barman] **************************
+skipping: [node1]
+ok: [barman -> node1(192.168.57.11)]
+
+TASK [install_barman : Create barman user] *************************************
+skipping: [barman]
+fatal: [node1]: FAILED! => {"msg": "Failed to set permissions on the temporary files Ansible needs to create when becoming an unprivileged user (rc: 1, err: chmod: invalid mode: ‘A+user:postgres:rx:allow’\nTry 'chmod --help' for more information.\n}). For information on working around this, see https://docs.ansible.com/ansible-core/2.18/playbook_guide/playbooks_privilege_escalation.html#risks-of-becoming-an-unprivileged-user"}
+...ignoring
+
+TASK [install_barman : Add permission for barman] ******************************
+skipping: [barman]
+changed: [node1]
+
+TASK [install_barman : Add permission for barman] ******************************
+skipping: [barman]
+changed: [node1]
+
+TASK [install_barman : restart postgresql-server on node1] *********************
+skipping: [barman]
+fatal: [node1]: FAILED! => {"changed": false, "msg": "Could not find the requested service postgresql-14: host"}
+
+TASK [install_barman : Create DB for backup] ***********************************
+skipping: [barman]
+
+TASK [install_barman : Add tables to otus_backup] ******************************
+skipping: [barman]
+
+TASK [install_barman : copy .pgpass] *******************************************
+ok: [barman]
+
+TASK [install_barman : copy barman.conf] ***************************************
+ok: [barman]
+
+TASK [install_barman : copy node1.conf] ****************************************
+ok: [barman]
+
+TASK [install_barman : barman switch-wal node1] ********************************
+fatal: [barman]: FAILED! => {"msg": "Failed to set permissions on the temporary files Ansible needs to create when becoming an unprivileged user (rc: 1, err: chmod: invalid mode: ‘A+user:barman:rx:allow’\nTry 'chmod --help' for more information.\n}). For information on working around this, see https://docs.ansible.com/ansible-core/2.18/playbook_guide/playbooks_privilege_escalation.html#risks-of-becoming-an-unprivileged-user"}
+
+PLAY RECAP *********************************************************************
+barman                     : ok=11   changed=1    unreachable=0    failed=1    skipped=10   rescued=0    ignored=0
+node1                      : ok=19   changed=5    unreachable=0    failed=1    skipped=10   rescued=0    ignored=2   
+node2                      : ok=8    changed=2    unreachable=0    failed=1    skipped=4    rescued=0    ignored=0
+
+Ansible failed to complete successfully. Any error output should be
+visible above. Please fix these errors and try again.
+user@user-P43E:~/Документы/postgreSQL-repl$ vagrant destroy
+The VirtualBox VM was created with a user that doesn't match the
+skipping: [barman]
+
+TASK [install_barman : copy .pgpass] *******************************************
+ok: [barman]
+
+TASK [install_barman : copy barman.conf] ***************************************
+ok: [barman]
+
+TASK [install_barman : copy node1.conf] ****************************************
+ok: [barman]
+
+TASK [install_barman : barman switch-wal node1] ********************************
+fatal: [barman]: FAILED! => {"msg": "Failed to set permissions on the temporary files Ansible needs to create when becoming an unprivileged user (rc: 1, err: chmod: invalid mode: ‘A+user:barman:rx:allow’\nTry 'chmod --help' for more information.\n}). For information on working around this, see https://docs.ansible.com/ansible-core/2.18/playbook_guide/playbooks_privilege_escalation.html#risks-of-becoming-an-unprivileged-user"}
+
+PLAY RECAP *********************************************************************
+barman                     : ok=11   changed=1    unreachable=0    failed=1    skipped=10   rescued=0    ignored=0
+node1                      : ok=19   changed=5    unreachable=0    failed=1    skipped=10   rescued=0    ignored=2   
+node2                      : ok=8    changed=2    unreachable=0    failed=1    skipped=4    rescued=0    ignored=0
+
+Ansible failed to complete successfully. Any error output should be
+visible above. Please fix these errors and try again.
