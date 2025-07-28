@@ -28,5 +28,5 @@ Otus learning - Administrator Linux. Professional
 ### ✅[26. LDAP](hw26_LDAP/README.md)
 ### ✅[27. DynamicWeb](hw27_DynamicWeb/README.md)
 ### ✅[28. MySQL](hw28_MySQL/README.md)
-### [29. PostgreSQL](hw29_PostgreSQL/README.md)
+### ✅[29. PostgreSQL](hw29_PostgreSQL/README.md)
 ### [30. FINAL PROJECT](hw30_project/README.md)
