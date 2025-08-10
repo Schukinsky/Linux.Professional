@@ -1,26 +1,26 @@
 ---
-- name: Установка Nginx
+- name: Installing Nginx
   become: yes
   apt:
     name: nginx
     state: present
     update_cache: yes
 
-- name: Проверка существования группы nginx
+- name: Checking the existence of the nginx group
   become: yes
   command: getent group nginx
   register: nginx_group_exists
   changed_when: false
   ignore_errors: yes
 
-- name: Создание группы nginx (если не существует)
+- name: Create nginx group (if it doesn't exist)
   become: yes
   group:
     name: nginx
     state: present
   when: nginx_group_exists.rc != 0
 
-- name: Создание SSL-директории
+- name: Creating an SSL directory
   become: yes
   file:
     path: /etc/nginx/ssl
@@ -29,7 +29,7 @@
     owner: root
     group: "{{ 'nginx' if nginx_group_exists.rc == 0 else 'root' }}"
 
-- name: Генерация приватного ключа
+- name: Generating a private key
   become: yes
   openssl_privatekey:
     path: "{{ nginx_ssl_key_path }}"
@@ -38,7 +38,7 @@
     owner: root
     group: "{{ 'nginx' if nginx_group_exists.rc == 0 else 'root' }}"
 
-- name: Генерация самоподписного сертификата
+- name: Generate a self-signed certificate
   become: yes
   openssl_certificate:
     path: "{{ nginx_ssl_cert_path }}"
@@ -51,7 +51,7 @@
     owner: root
     group: "{{ 'nginx' if nginx_group_exists.rc == 0 else 'root' }}"
 
-- name: Настройка Nginx
+- name: Setting up Nginx
   become: yes
   template:
     src: nginx-https.conf.j2
@@ -61,14 +61,14 @@
     group: root
   notify: restart nginx
 
-- name: Проверка конфигурации Nginx
+- name: Checking Nginx Configuration
   become: yes
   command: nginx -t
   register: nginx_test
   changed_when: false
   notify: reload nginx
 
-- name: Включение и запуск Nginx
+- name: Enabling and starting Nginx
   become: yes
   service:
     name: nginx
@@ -82,6 +82,48 @@
     state: present
     update_cache: yes
   notify: restart prometheus-node-exporter
+
+- name: Install Docker and dependencies
+  become: yes
+  apt:
+    name:
+      - docker.io
+      - docker-compose
+    state: present
+    update_cache: yes
+
+- name: Ensure Docker service is running
+  systemd:
+    name: docker
+    state: started
+    enabled: yes
+
+- name: Ensure promtail directories exist
+  become: yes
+  file:
+    path: "/opt/promtail/config"
+    state: directory
+    mode: '0755'
+
+- name: Deploy promtail config
+  become: yes
+  template:
+    src: promtail-config.yml.j2
+    dest: "/opt/promtail/config/config.yml"
+    mode: '0644'
+
+- name: Deploy docker-compose for promtail
+  become: yes
+  copy:
+    src: docker-compose-promtail.yml
+    dest: "/opt/promtail/docker-compose.yml"
+    mode: '0644'
+
+- name: Run promtail with Docker Compose
+  become: yes
+  command: docker-compose up -d
+  args:
+    chdir: /opt/promtail
 
 - name: Install UFW
   become: yes
