@@ -66,7 +66,7 @@ ssh-keygen -f "/home/user/.ssh/known_hosts" -R "10.0.0.11"
 ```
 2.4 Запускаем плейбук:
 ```
-ansible-playbook pg1.yml
+ansible-playbook superset1.yml
 ```
 
 **3. superset2**  

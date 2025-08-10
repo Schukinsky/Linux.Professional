@@ -1,0 +1,63 @@
+server:
+  http_listen_port: 9080
+  grpc_listen_port: 0
+
+positions:
+  filename: /tmp/positions.yaml
+
+clients:
+  - url: http://10.0.0.31:3100/loki/api/v1/push
+
+scrape_configs:
+  - job_name: system
+    static_configs:
+      - targets: [localhost]
+        labels:
+          job: "system"
+          host: "{{ ansible_hostname | default(inventory_hostname) }}"
+          __path__: /var/log/*log
+
+  - job_name: nginx
+    static_configs:
+      - targets: [localhost]
+        labels:
+          job: "nginx"
+          host: "{{ ansible_hostname | default(inventory_hostname) }}"
+          __path__: /var/log/nginx/*log
+
+  - job_name: postgresql
+    static_configs:
+      - targets: [localhost]
+        labels:
+          job: "postgresql"
+          host: "{{ ansible_hostname | default(inventory_hostname) }}"
+          __path__: "/var/log/postgresql/*.log,/var/lib/postgresql/*/main/log/*.log"
+    pipeline_stages:
+      - match:
+          selector: '{job="postgresql"}'
+          stages:
+            - regex:
+                expression: '^(?P<timestamp>\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}(?:\.\d+)? \w+)\s+(?P<message>.*)'
+            - timestamp:
+                source: timestamp
+                format: "2006-01-02 15:04:05.000 MST"
+            - labels:
+                message:
+            - output:
+                source: message
+
+  - job_name: postgresql_backup
+    static_configs:
+      - targets: [localhost]
+        labels:
+          job: "postgresql_backup"
+          host: "{{ ansible_hostname | default(inventory_hostname) }}"
+          __path__: "/var/log/postgresql/backups/postgres_backup_*.log"
+
+  - job_name: pg_query_emulator
+    static_configs:
+      - targets: [localhost]
+        labels:
+          job: "pg_query_emulator"
+          host: "{{ ansible_hostname | default(inventory_hostname) }}"
+          __path__: "/var/log/pg_query_emulator/*.log/"
