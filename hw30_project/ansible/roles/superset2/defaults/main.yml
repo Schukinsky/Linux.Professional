@@ -1,0 +1,3 @@
+superset_secret_key: "nmtrC3j9yTVT14GRii7pxVzVqd3J8huklbxXi30WS07db8BWTY8DRG7JaTwG1a2d"
+superset_admin_password: "admin123"
+superset_db_uri: "sqlite:////home/vagrant/.superset/superset.db"

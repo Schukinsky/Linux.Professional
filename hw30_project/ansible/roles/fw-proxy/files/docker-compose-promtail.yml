@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  promtail:
+    image: grafana/promtail:2.8.0  # Используем конкретную версию
+    container_name: promtail
+    restart: unless-stopped
+    volumes:
+      - /var/log:/var/log  # Монтируем системные логи
+      - /var/log/nginx:/var/log/nginx
+      - ./config/config.yml:/etc/promtail/config.yml  # Конфиг
+      - /tmp:/tmp  # Для positions файла
+    network_mode: host  # Для доступа к локальному Loki
+    command: -config.file=/etc/promtail/config.yml  # Указываем конфиг
+
+volumes:
+  log_volume:  # Опционально для приложений

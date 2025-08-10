@@ -1,0 +1,12 @@
+postgresql_admin_user: "admin_user"
+postgresql_admin_password: "admin_user"
+postgresql_replicator_user: "replicator"
+postgresql_replicator_password: "replicator"
+postgres_backup_dir: "/var/backups/postgresql"
+postgres_backup_log_dir: "/var/log/postgresql/backups"
+postgres_backup_user: "admin_user"
+postgres_backup_password: "admin_user"
+postgres_backup_databases:
+  - "gate"
+  - "postgres"
+postgres_backup_retention_days: 14

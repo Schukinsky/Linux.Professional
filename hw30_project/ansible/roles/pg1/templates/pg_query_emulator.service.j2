@@ -1,0 +1,20 @@
+[Unit]
+Description=PostgreSQL Query Emulator Service
+After=postgresql.service
+Requires=postgresql.service
+
+[Service]
+Type=simple
+User=postgres
+Group=postgres
+WorkingDirectory=/usr/local/bin
+ExecStart=/usr/local/bin/pg_query_emulator.sh
+Restart=always
+RestartSec=5
+Environment="PGPASSWORD={{ postgresql_admin_password }}"
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=pg_query_emulator
+
+[Install]
+WantedBy=multi-user.target

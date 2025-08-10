@@ -1,0 +1,139 @@
+---
+- name: Установка Nginx
+  become: yes
+  apt:
+    name: nginx
+    state: present
+    update_cache: yes
+
+- name: Проверка существования группы nginx
+  become: yes
+  command: getent group nginx
+  register: nginx_group_exists
+  changed_when: false
+  ignore_errors: yes
+
+- name: Создание группы nginx (если не существует)
+  become: yes
+  group:
+    name: nginx
+    state: present
+  when: nginx_group_exists.rc != 0
+
+- name: Создание SSL-директории
+  become: yes
+  file:
+    path: /etc/nginx/ssl
+    state: directory
+    mode: 0750
+    owner: root
+    group: "{{ 'nginx' if nginx_group_exists.rc == 0 else 'root' }}"
+
+- name: Генерация приватного ключа
+  become: yes
+  openssl_privatekey:
+    path: "{{ nginx_ssl_key_path }}"
+    size: 2048
+    mode: 0640
+    owner: root
+    group: "{{ 'nginx' if nginx_group_exists.rc == 0 else 'root' }}"
+
+- name: Генерация самоподписного сертификата
+  become: yes
+  openssl_certificate:
+    path: "{{ nginx_ssl_cert_path }}"
+    privatekey_path: "{{ nginx_ssl_key_path }}"
+    provider: selfsigned
+    selfsigned_not_after: "+3650d"
+    selfsigned_digest: "sha256"
+    selfsigned_version: 3
+    mode: 0644
+    owner: root
+    group: "{{ 'nginx' if nginx_group_exists.rc == 0 else 'root' }}"
+
+- name: Настройка Nginx
+  become: yes
+  template:
+    src: nginx-https.conf.j2
+    dest: /etc/nginx/conf.d/superset.conf
+    mode: 0644
+    owner: root
+    group: root
+  notify: restart nginx
+
+- name: Проверка конфигурации Nginx
+  become: yes
+  command: nginx -t
+  register: nginx_test
+  changed_when: false
+  notify: reload nginx
+
+- name: Включение и запуск Nginx
+  become: yes
+  service:
+    name: nginx
+    state: started
+    enabled: yes
+
+- name: Install node_exporter for system metrics
+  become: yes
+  ansible.builtin.apt:
+    name: prometheus-node-exporter
+    state: present
+    update_cache: yes
+  notify: restart prometheus-node-exporter
+
+- name: Install UFW
+  become: yes
+  apt:
+    name: ufw
+    state: present
+
+- name: Reset UFW (optional)
+  become: yes
+  ufw:
+    state: reset
+  when: reset_ufw | default(false)
+
+# Определяем интерфейсы
+- name: Get public interface name
+  become: yes
+  shell: |
+    ip -o -4 addr show | grep 192.168.0.100 | awk '{print $2}'
+  register: public_interface
+  changed_when: false
+
+# Устанавливаем политики по умолчанию
+- name: Allow all incoming by default
+  become: yes
+  ufw:
+    default: allow
+    direction: incoming
+
+- name: Allow all outgoing by default
+  become: yes
+  ufw:
+    default: allow
+    direction: outgoing
+
+# Блокируем SSH на внешнем интерфейсе
+- name: Block SSH on public interface
+  become: yes
+  command: "ufw deny in on {{ public_interface.stdout }} proto tcp to any port 22"
+
+# Включаем UFW
+- name: Enable UFW
+  become: yes
+  ufw:
+    state: enabled
+
+# Проверка
+- name: Verify UFW status
+  become: yes
+  command: ufw status verbose
+  register: ufw_status
+  changed_when: false
+
+- name: Display UFW rules
+  debug:
+    var: ufw_status.stdout

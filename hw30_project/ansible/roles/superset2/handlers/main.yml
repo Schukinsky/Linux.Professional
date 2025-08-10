@@ -1,0 +1,13 @@
+---
+- name: Restart Superset
+  systemd:
+    name: superset
+    state: restarted
+    daemon_reload: yes
+  become: yes
+
+- name: restart prometheus-node-exporter
+  become: yes
+  ansible.builtin.service:
+    name: prometheus-node-exporter
+    state: restarted

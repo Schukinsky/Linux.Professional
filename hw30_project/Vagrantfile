@@ -1,0 +1,82 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure("2") do |config|
+  # Общий образ для всех машин
+  config.vm.box = "ubuntu/jammy64"
+  
+  # Настройка для fw-proxy
+  config.vm.define "fw-proxy" do |fw|
+    fw.vm.hostname = "fw-proxy"
+    
+    # Настройки ресурсов
+    fw.vm.provider "virtualbox" do |vb|
+      vb.memory = 512
+      vb.cpus = 1
+    end
+    
+    # Сетевые интерфейсы:
+    # 1. Сетевой мост (Bridged) с интерфейсом wlp2s0 и IP 192.168.0.100
+    fw.vm.network "public_network",
+      bridge: "wlp2s0",
+      ip: "192.168.0.100",
+      auto_config: true
+    
+    # 2. Внутренняя сеть (10.0.0.10)
+    fw.vm.network "private_network", ip: "10.0.0.10"
+  end
+
+  # Настройка для superset1
+  config.vm.define "superset1" do |superset1|
+    superset1.vm.hostname = "superset1"
+    superset1.vm.provider "virtualbox" do |vb|
+      vb.memory = 1024
+      vb.cpus = 1
+    end
+    superset1.vm.network "private_network", ip: "10.0.0.11"
+  end
+
+  # Настройка для superset2
+  config.vm.define "superset2" do |superset2|
+    superset2.vm.hostname = "superset2"
+    superset2.vm.provider "virtualbox" do |vb|
+      vb.memory = 1024
+      vb.cpus = 1
+    end
+    superset2.vm.network "private_network", ip: "10.0.0.12"
+  end
+
+  # Настройка для pg1 (PostgreSQL Server 1)
+  config.vm.define "pg1" do |pg1|
+    pg1.vm.hostname = "pg1"
+    pg1.vm.provider "virtualbox" do |vb|
+      vb.memory = 700
+      vb.cpus = 1
+    end
+    pg1.vm.network "private_network", ip: "10.0.0.21"
+  end
+
+  # Настройка для pg2 (PostgreSQL Server 2)
+  config.vm.define "pg2" do |pg2|
+    pg2.vm.hostname = "pg2"
+    pg2.vm.provider "virtualbox" do |vb|
+      vb.memory = 700
+      vb.cpus = 1
+    end
+    pg2.vm.network "private_network", ip: "10.0.0.22"
+  end
+
+  # Настройка для grafana
+  config.vm.define "grafana" do |grafana|
+    grafana.vm.hostname = "grafana"
+    grafana.vm.provider "virtualbox" do |vb|
+      vb.memory = 2048
+      vb.cpus = 1
+    end
+    grafana.vm.network "private_network", ip: "10.0.0.31"
+    grafana.vm.network "public_network",
+      bridge: "wlp2s0",
+      ip: "192.168.0.101",
+      auto_config: true
+  end
+end

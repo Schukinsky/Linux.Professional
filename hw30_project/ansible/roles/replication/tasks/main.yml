@@ -1,0 +1,40 @@
+---
+- name: Stop PostgreSQL for configuration
+  become: yes
+  service:
+    name: postgresql
+    state: stopped
+
+- name: Remove files from data catalog
+  become: yes
+  file:
+    path: /var/lib/postgresql/14/main/
+    state: absent
+
+- name: copy files from master to slave
+  become: yes
+  expect:
+    command: 'pg_basebackup -h 10.0.0.21 -U replicator -p 5432 -D /var/lib/postgresql/14/main/ -R -P'
+    responses: 
+      '.*Password*': "{{ postgresql_replicator_password }}"
+
+- name: Fix permissions
+  become: yes
+  file:
+    path: /var/lib/postgresql/14/main
+    owner: postgres
+    group: postgres
+    recurse: yes
+
+- name: Start and enable PostgreSQL
+  become: yes
+  service:
+    name: postgresql
+    state: started
+    enabled: yes
+
+
+
+
+
+

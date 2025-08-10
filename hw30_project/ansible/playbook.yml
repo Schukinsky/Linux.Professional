@@ -1,0 +1,24 @@
+---
+- hosts: superset1
+  roles:
+    - superset1
+
+- hosts: superset2
+  roles:
+    - superset2
+
+- hosts: fw-proxy
+  roles:
+    - fw-proxy
+
+- hosts: pg1
+  roles:
+    - pg1
+
+- hosts: pg2
+  roles:
+    - pg2
+
+- hosts: grafana
+  roles:
+    - grafana

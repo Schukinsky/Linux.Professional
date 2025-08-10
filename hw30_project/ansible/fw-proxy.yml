@@ -1,0 +1,4 @@
+---
+- hosts: fw-proxy
+  roles:
+    - fw-proxy

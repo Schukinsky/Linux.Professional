@@ -1,0 +1,31 @@
+#!/bin/bash
+# Auto-generated PostgreSQL backup script
+
+DB_USER="{{ postgres_backup_user }}"
+DB_PASS="{{ postgres_backup_password }}"
+BACKUP_DIR="{{ postgres_backup_dir }}/$(date +%Y-%m-%d)"
+LOG_FILE="{{ postgres_backup_log_dir }}/postgres_backup_$(date +%Y-%m-%d).log"
+
+# Ensure directories exist
+mkdir -p "$BACKUP_DIR"
+chown root:root "$BACKUP_DIR"
+chmod 750 "$BACKUP_DIR"
+
+echo "[$(date)] Starting backup" >> "$LOG_FILE"
+
+export PGPASSWORD="$DB_PASS"
+
+{% for db in postgres_backup_databases %}
+# Backup for {{ db }}
+pg_dump -h localhost -U "$DB_USER" -w -Fc {{ db }} > "$BACKUP_DIR/{{ db }}_$(date +%H-%M).dump" 2>> "$LOG_FILE"
+if [ $? -eq 0 ]; then
+    echo "[$(date)] Successfully backed up {{ db }}" >> "$LOG_FILE"
+else
+    echo "[$(date)] ERROR backing up {{ db }}" >> "$LOG_FILE"
+fi
+{% endfor %}
+
+unset PGPASSWORD
+
+# Cleanup old backups (keep {{ postgres_backup_retention_days }} days)
+find "{{ postgres_backup_dir }}" -type f -mtime +{{ postgres_backup_retention_days }} -delete 2>> "$LOG_FILE"

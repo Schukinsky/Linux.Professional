@@ -1,0 +1,39 @@
+upstream superset_cluster {
+    least_conn;  # Балансировка по наименьшему количеству соединений
+    {% for server in superset_backend_servers %}
+    server {{ server }};
+    {% endfor %}
+    
+    # Параметры для keepalive соединений
+    keepalive 32;
+}
+
+server {
+    listen 443 ssl;
+    server_name {{ nginx_server_name }};
+
+    ssl_certificate {{ nginx_ssl_cert_path }};
+    ssl_certificate_key {{ nginx_ssl_key_path }};
+
+    location / {
+        proxy_pass http://superset_cluster;  # Используем кластер вместо одного сервера
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        
+        # Важные таймауты
+        proxy_connect_timeout 5s;
+        proxy_send_timeout 600s;
+        proxy_read_timeout 600s;
+        
+        # Механизм проверки работоспособности
+        proxy_next_upstream error timeout invalid_header http_500 http_502 http_503 http_504;
+    }
+}
+
+server {
+    listen 80;
+    server_name {{ ansible_host }};
+    return 301 https://$host$request_uri;
+}

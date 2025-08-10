@@ -1,0 +1,4 @@
+---
+- hosts: pg1
+  roles:
+    - pg1

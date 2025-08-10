@@ -1,0 +1,189 @@
+---
+- name: Update apt package index
+  become: yes
+  apt:
+    update_cache: yes
+    cache_valid_time: 3600
+
+- name: Install system dependencies
+  become: yes
+  apt:
+    name:
+      - python3
+      - python3-dev
+      - python3-pip
+      - python3-venv
+      - libpq-dev
+      - build-essential
+      - libssl-dev
+      - libffi-dev
+      - libsasl2-dev
+      - libldap2-dev
+    state: present
+
+- name: Create virtual environment
+  command: python3 -m venv /home/vagrant/superset-env
+  args:
+    creates: /home/vagrant/superset-env
+
+- name: Ensure correct marshmallow version
+  pip:
+    executable: /home/vagrant/superset-env/bin/pip
+    name: "marshmallow>=3.19.0,<4.0.0"
+    state: present
+    extra_args: "--force-reinstall"
+  become: yes
+  become_user: vagrant
+
+- name: Install Apache Superset with dependencies
+  pip:
+    executable: /home/vagrant/superset-env/bin/pip
+    name:
+      - "pillow"
+      - "apache-superset>=3.0.0"
+      - "gunicorn"
+      - "psycopg2-binary"  # Добавлен psycopg2 для работы с PostgreSQL
+    state: present
+  become: yes
+  become_user: vagrant
+
+- name: Copy Superset config
+  template:
+    src: superset_config.py.j2
+    dest: /home/vagrant/superset_config.py
+    mode: '0644'
+
+- name: Ensure .superset directory exists
+  file:
+    path: /home/vagrant/.superset
+    state: directory
+    owner: vagrant
+    group: vagrant
+    mode: '0755'
+  become: yes
+
+- name: Copy database template
+  copy:
+    src: "{{ role_path }}/templates/superset.db"
+    dest: /home/vagrant/.superset/superset.db
+    remote_src: false
+    owner: vagrant
+    group: vagrant
+    mode: '0644'
+  become: yes
+
+- name: Initialize database
+  shell: |
+    set -o pipefail
+    . /home/vagrant/superset-env/bin/activate
+    export FLASK_APP="superset.app:create_app()"
+    export SUPERSET_CONFIG_PATH="/home/vagrant/superset_config.py"
+    superset db upgrade 2>&1 | tee /tmp/superset_db.log
+  args:
+    executable: /bin/bash
+    creates: /home/vagrant/.superset/superset.db
+  register: db_init
+  failed_when: >
+    db_init.rc != 0 and
+    "Already up to date" not in db_init.stdout and
+    "Current revision is" not in db_init.stdout
+
+- name: Create admin user
+  shell: |
+    . /home/vagrant/superset-env/bin/activate
+    export FLASK_APP="superset.app:create_app()"
+    export SUPERSET_CONFIG_PATH="/home/vagrant/superset_config.py"
+    superset fab create-admin \
+      --username admin \
+      --firstname Admin \
+      --lastname User \
+      --email admin@example.com \
+      --password "{{ superset_admin_password }}"
+  register: admin_creation
+  changed_when: "'Admin user admin already exists' not in admin_creation.stdout"
+  become: yes
+  become_user: vagrant
+
+- name: Load examples
+  shell: |
+    . /home/vagrant/superset-env/bin/activate
+    export FLASK_APP="superset.app:create_app()"
+    export SUPERSET_CONFIG_PATH="/home/vagrant/superset_config.py"
+    superset load_examples
+  when: load_examples|default(false)
+  become: yes
+  become_user: vagrant
+
+- name: Initialize Superset
+  shell: |
+    . /home/vagrant/superset-env/bin/activate
+    export FLASK_APP="superset.app:create_app()"
+    export SUPERSET_CONFIG_PATH="/home/vagrant/superset_config.py"
+    superset init
+  become: yes
+  become_user: vagrant
+
+- name: Create systemd service
+  template:
+    src: superset.service.j2
+    dest: /etc/systemd/system/superset.service
+  notify: Restart Superset
+  become: yes
+
+- name: Enable and start Superset service
+  systemd:
+    name: superset
+    enabled: yes
+    state: started
+    daemon_reload: yes
+  become: yes
+
+- name: Install node_exporter for system metrics
+  become: yes
+  ansible.builtin.apt:
+    name: prometheus-node-exporter
+    state: present
+    update_cache: yes
+  notify: restart prometheus-node-exporter
+
+- name: Install Docker and dependencies
+  become: yes
+  apt:
+    name:
+      - docker.io
+      - docker-compose
+    state: present
+    update_cache: yes
+
+- name: Ensure Docker service is running
+  systemd:
+    name: docker
+    state: started
+    enabled: yes
+
+- name: Ensure promtail directories exist
+  become: yes
+  file:
+    path: "/opt/promtail/config"
+    state: directory
+    mode: '0755'
+
+- name: Deploy promtail config
+  become: yes
+  template:
+    src: promtail-config.yml.j2
+    dest: "/opt/promtail/config/config.yml"
+    mode: '0644'
+
+- name: Deploy docker-compose for promtail
+  become: yes
+  copy:
+    src: docker-compose-promtail.yml
+    dest: "/opt/promtail/docker-compose.yml"
+    mode: '0644'
+
+- name: Run promtail with Docker Compose
+  become: yes
+  command: docker-compose up -d
+  args:
+    chdir: /opt/promtail

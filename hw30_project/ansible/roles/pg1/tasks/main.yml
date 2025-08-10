@@ -1,0 +1,179 @@
+---
+- name: Install PostgreSQL 14
+  become: yes
+  apt:
+    name:
+      - python3-psycopg2
+      - postgresql-14
+      - postgresql-contrib-14
+    state: present
+    update_cache: yes
+
+- name: Wait for cluster initialization
+  become: yes
+  wait_for:
+    path: /var/lib/postgresql/14/main/PG_VERSION
+    timeout: 60
+
+- name: Stop PostgreSQL for configuration
+  become: yes
+  service:
+    name: postgresql
+    state: stopped
+
+- name: Configure pg_hba.conf
+  become: yes
+  template:
+    src: pg_hba.conf.j2
+    dest: /etc/postgresql/14/main/pg_hba.conf
+    owner: postgres
+    group: postgres
+    mode: 0640
+
+- name: Configure postgresql.conf
+  become: yes
+  template:
+    src: postgresql.conf.j2
+    dest: /etc/postgresql/14/main/postgresql.conf
+    owner: postgres
+    group: postgres
+    mode: 0640
+
+- name: Fix permissions
+  become: yes
+  file:
+    path: /var/lib/postgresql/14/main
+    owner: postgres
+    group: postgres
+    recurse: yes
+
+- name: Start and enable PostgreSQL
+  become: yes
+  service:
+    name: postgresql
+    state: started
+    enabled: yes
+
+- name: CREATE ROLE postgresql_admin_user
+  shell: >
+    sudo -u postgres psql -v ON_ERROR_STOP=1 -c "
+    CREATE ROLE {{ postgresql_admin_user }}
+      WITH LOGIN SUPERUSER CREATEDB CREATEROLE
+      PASSWORD '{{ postgresql_admin_password }}';
+    "
+  ignore_errors: yes
+
+- name: CREATE ROLE replicator
+  shell: >
+    sudo -u postgres psql -v ON_ERROR_STOP=1 -c "
+    CREATE ROLE {{ postgresql_replicator_user }}
+      WITH LOGIN REPLICATION
+      PASSWORD '{{ postgresql_replicator_password }}';
+    "
+  ignore_errors: yes
+
+- name: Copy database template
+  become: yes
+  copy:
+    src: "{{ role_path }}/files/full_backup.sql"
+    dest: "/tmp/full_backup.sql"
+
+- name: Restore database
+  shell: >
+    psql -h localhost -U admin_user -f /tmp/full_backup.sql postgres
+  environment:
+    PGPASSWORD: "{{ postgresql_admin_password }}"
+
+- name: Copy event emulator 
+  become: yes
+  copy:
+    src: "{{ role_path }}/files/pg_query_emulator.sh"
+    dest: "/usr/local/bin/pg_query_emulator.sh"
+    owner: root
+    group: root
+    mode: 0755   
+
+- name: Create log directory
+  become: yes
+  file:
+    path: /var/log/pg_query_emulator
+    state: directory
+    owner: postgres
+    group: postgres
+    mode: 0755
+
+- name: Deploy systemd service unit file
+  become: yes
+  template:
+    src: pg_query_emulator.service.j2
+    dest: /etc/systemd/system/pg_query_emulator.service
+    mode: 0644
+
+- name: Reload systemd daemon
+  become: yes
+  systemd:
+    daemon_reload: yes
+
+- name: Enable and start emulator service
+  become: yes
+  systemd:
+    name: pg_query_emulator
+    state: started
+    enabled: yes
+
+- name: Install node_exporter for system metrics
+  become: yes
+  ansible.builtin.apt:
+    name: prometheus-node-exporter
+    state: present
+    update_cache: yes
+  notify: restart prometheus-node-exporter
+
+- name: Install Docker and dependencies
+  become: yes
+  apt:
+    name:
+      - docker.io
+      - docker-compose
+    state: present
+    update_cache: yes
+
+- name: Ensure Docker service is running
+  systemd:
+    name: docker
+    state: started
+    enabled: yes
+
+- name: Ensure promtail directories exist
+  become: yes
+  file:
+    path: "/opt/promtail/config"
+    state: directory
+    mode: '0755'
+
+- name: Deploy promtail config
+  become: yes
+  template:
+    src: promtail-config.yml.j2
+    dest: "/opt/promtail/config/config.yml"
+    mode: '0644'
+
+- name: Deploy docker-compose for promtail
+  become: yes
+  copy:
+    src: docker-compose-promtail.yml
+    dest: "/opt/promtail/docker-compose.yml"
+    mode: '0644'
+
+- name: Run promtail with Docker Compose
+  become: yes
+  command: docker-compose up -d
+  args:
+    chdir: /opt/promtail
+
+
+
+
+
+
+

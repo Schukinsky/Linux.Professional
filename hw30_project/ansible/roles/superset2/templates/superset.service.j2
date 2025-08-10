@@ -1,0 +1,25 @@
+[Unit]
+Description=Apache Superset (Console Mode)
+After=network.target
+
+[Service]
+User=vagrant
+Group=vagrant
+WorkingDirectory=/home/vagrant
+Environment="PATH=/home/vagrant/superset-env/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+Environment="FLASK_APP=superset.app:create_app()"
+Environment="SUPERSET_CONFIG_PATH=/home/vagrant/superset_config.py"
+Environment="PYTHONPATH=/home/vagrant/superset-env/lib/python3.10/site-packages"
+
+# Режим с полным логированием
+ExecStart=/bin/bash -c 'source /home/vagrant/superset-env/bin/activate && \
+  superset run -h 10.0.0.12 -p 8080 --with-threads --reload --debugger 2>&1 | \
+  tee /home/vagrant/superset-console.log'
+
+Restart=always
+RestartSec=10s
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

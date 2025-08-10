@@ -1,0 +1,80 @@
+---
+- name: Install Docker and dependencies
+  apt:
+    name:
+      - docker.io
+      - docker-compose
+    state: present
+    update_cache: yes
+
+- name: Ensure Docker service is running
+  systemd:
+    name: docker
+    state: started
+    enabled: yes
+
+- name: Create directory for Grafana stack
+  file:
+    path: /opt/grafana-stack
+    state: directory
+    mode: '0755'
+
+- name: Verify source files exist
+  stat:
+    path: "{{ item }}"
+  loop:
+    - "files/docker-compose.yml"
+    - "files/grafana.ini"
+    - "files/prometheus.yml"
+    - "files/loki-config.yml"
+  register: source_files
+  ignore_errors: yes
+
+- name: Copy main config files
+  copy:
+    src: "files/{{ item.src }}"
+    dest: "/opt/grafana-stack/{{ item.dest }}"
+    mode: '0644'
+  loop:
+    - { src: 'docker-compose.yml', dest: 'docker-compose.yml' }
+    - { src: 'grafana.ini', dest: 'grafana.ini' }
+    - { src: 'prometheus.yml', dest: 'prometheus.yml' }
+    - { src: 'loki-config.yml', dest: 'loki-config.yml' }
+
+- name: Create and setup provisioning directories
+  block:
+    - name: Create provisioning directory structure
+      file:
+        path: "{{ item }}"
+        state: directory
+        mode: '0755'
+      loop:
+        - /opt/grafana-stack/provisioning
+        - /opt/grafana-stack/provisioning/datasources
+        - /opt/grafana-stack/provisioning/dashboards
+        - /opt/grafana-stack/provisioning/alerts
+
+    - name: Copy provisioning configs
+      copy:
+        src: "files/provisioning/{{ item.src }}"
+        dest: "/opt/grafana-stack/provisioning/{{ item.dest }}"
+        mode: '0644'
+      loop:
+        - { src: 'datasources/ds.yml', dest: 'datasources/ds.yml' }
+        - { src: 'dashboards/dashboard.yml', dest: 'dashboards/dashboard.yml' }
+        - { src: 'dashboards/node_exporter.json', dest: 'dashboards/node_exporter.json' }
+        - { src: 'alerts/contact-points.yml', dest: 'alerts/contact-points.yml' }
+        - { src: 'alerts/policies.yml', dest: 'alerts/policies.yml' }
+        - { src: 'alerts/rules.yml', dest: 'alerts/rules.yml' }
+
+    - name: Ensure correct permissions for provisioning
+      file:
+        path: /opt/grafana-stack/provisioning
+        owner: vagrant
+        group: vagrant
+        recurse: yes
+
+- name: Run Grafana stack with Docker Compose
+  command: docker-compose up -d
+  args:
+    chdir: /opt/grafana-stack

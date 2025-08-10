@@ -1,0 +1,6 @@
+nginx_ssl_cert_path: "/etc/nginx/ssl/superset.crt"
+nginx_ssl_key_path: "/etc/nginx/ssl/superset.key"
+nginx_server_name: "192.168.0.100"
+superset_backend_servers:
+  - "10.0.0.11:8080"
+  - "10.0.0.12:8080"

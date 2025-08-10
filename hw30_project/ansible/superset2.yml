@@ -1,0 +1,4 @@
+---
+- hosts: superset2
+  roles:
+    - superset2

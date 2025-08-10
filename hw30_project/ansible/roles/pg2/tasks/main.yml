@@ -1,0 +1,158 @@
+---
+- name: Install PostgreSQL 14
+  become: yes
+  apt:
+    name:
+      - python3-psycopg2
+      - postgresql-14
+      - postgresql-contrib-14
+    state: present
+    update_cache: yes
+
+- name: Wait for cluster initialization
+  become: yes
+  wait_for:
+    path: /var/lib/postgresql/14/main/PG_VERSION
+    timeout: 60
+
+- name: CREATE ROLE postgresql_admin_user
+  shell: >
+    sudo -u postgres psql -v ON_ERROR_STOP=1 -c "
+    CREATE ROLE {{ postgresql_admin_user }}
+      WITH LOGIN SUPERUSER CREATEDB CREATEROLE
+      PASSWORD '{{ postgresql_admin_password }}';
+    "
+  ignore_errors: yes
+
+- name: Stop PostgreSQL for configuration
+  become: yes
+  service:
+    name: postgresql
+    state: stopped
+
+- name: Remove files from data catalog
+  become: yes
+  file:
+    path: /var/lib/postgresql/14/main/
+    state: absent
+
+- name: copy files from master to slave
+  become: yes
+  expect:
+    command: 'pg_basebackup -h 10.0.0.21 -U replicator -p 5432 -D /var/lib/postgresql/14/main/ -R -P'
+    responses: 
+      '.*Password*': "{{ postgresql_replicator_password }}"
+
+- name: Fix permissions
+  become: yes
+  file:
+    path: /var/lib/postgresql/14/main
+    owner: postgres
+    group: postgres
+    recurse: yes
+
+- name: Start and enable PostgreSQL
+  become: yes
+  service:
+    name: postgresql
+    state: started
+    enabled: yes
+
+- name: Ensure backup script directory exists
+  file:
+    path: /usr/local/bin
+    state: directory
+    mode: 0755
+
+- name: Create PostgreSQL backup script
+  become: yes
+  template:
+    src: postgres_backup.sh.j2
+    dest: /usr/local/bin/postgres_backup.sh
+    mode: 0750
+    owner: root
+    group: root
+
+- name: Create backup directory
+  become: yes
+  file:
+    path: "{{ postgres_backup_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: 0750
+
+- name: Add backup to crontab
+  become: yes
+  cron:
+    name: "PostgreSQL daily backup"
+    minute: "0"
+    hour: "2"
+    user: root
+    job: "/usr/local/bin/postgres_backup.sh"
+    cron_file: postgres_backup
+
+- name: Ensure log directory exists
+  become: yes
+  file:
+    path: "{{ postgres_backup_log_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: 0750
+
+- name: Install node_exporter for system metrics
+  become: yes
+  ansible.builtin.apt:
+    name: prometheus-node-exporter
+    state: present
+    update_cache: yes
+  notify: restart prometheus-node-exporter
+
+- name: Install Docker and dependencies
+  become: yes
+  apt:
+    name:
+      - docker.io
+      - docker-compose
+    state: present
+    update_cache: yes
+
+- name: Ensure Docker service is running
+  systemd:
+    name: docker
+    state: started
+    enabled: yes
+
+- name: Ensure promtail directories exist
+  become: yes
+  file:
+    path: "/opt/promtail/config"
+    state: directory
+    mode: '0755'
+
+- name: Deploy promtail config
+  become: yes
+  template:
+    src: promtail-config.yml.j2
+    dest: "/opt/promtail/config/config.yml"
+    mode: '0644'
+
+- name: Deploy docker-compose for promtail
+  become: yes
+  copy:
+    src: docker-compose-promtail.yml
+    dest: "/opt/promtail/docker-compose.yml"
+    mode: '0644'
+
+- name: Run promtail with Docker Compose
+  become: yes
+  command: docker-compose up -d
+  args:
+    chdir: /opt/promtail
+
+
+
+
+
+

@@ -1,0 +1,5 @@
+# Пользователь и пароль
+postgresql_admin_user: "admin_user"
+postgresql_admin_password: "admin_user"
+postgresql_replicator_user: "replicator"
+postgresql_replicator_password: "replicator"
